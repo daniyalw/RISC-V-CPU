@@ -10,7 +10,7 @@ BUILD_DIR = build
 WAVE_DIR  = waves
 
 # default target
-all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit
+all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit
 
 ##############################################
 # individual simulation targets
@@ -47,6 +47,14 @@ ripple_carry_4bit: $(BUILD_DIR) $(WAVE_DIR)
 		$(TB_DIR)/tb_ripple_carry_4bit.v
 	$(VVP) $(BUILD_DIR)/ripple_carry_4bit.out
 
+add_sub_4bit: $(BUILD_DIR) $(WAVE_DIR)
+	$(IVERILOG) -o $(BUILD_DIR)/add_sub_4bit.out \
+		$(RTL_DIR)/full_adder.v \
+		$(RTL_DIR)/ripple_carry_4bit.v \
+		$(RTL_DIR)/add_sub_4bit.v \
+		$(TB_DIR)/tb_add_sub_4bit.v
+	$(VVP) $(BUILD_DIR)/add_sub_4bit.out
+
 ##############################################
 # open waveforms
 ##############################################
@@ -66,6 +74,9 @@ wave_full_adder:
 wave_ripple_carry_4bit:
 	$(GTKWAVE) $(WAVE_DIR)/ripple_carry_4bit.vcd
 
+wave_add_sub_4bit:
+	$(GTKWAVE) $(WAVE_DIR)/add_sub_4bit.vcd
+
 ##############################################
 # cleanup
 ##############################################
@@ -75,5 +86,5 @@ clean:
 	del $(WAVE_DIR)\\*.vcd
 
 .PHONY: all clean \
-	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit \
-	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit
+	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit \
+	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit wave_add_sub_4bit
