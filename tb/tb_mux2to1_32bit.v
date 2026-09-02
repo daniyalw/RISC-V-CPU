@@ -32,7 +32,7 @@ module tb_mux2to1_32bit;
             expected = sel ? b : a;
 
             if (out !== expected) begin
-                $display("ERROR: a = %a, b = %b, sel = %b | out = %b, expected = %b", a, b, sel, out, expected);
+                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
                 error_count = error_count + 1;
             end
         end
@@ -47,7 +47,7 @@ module tb_mux2to1_32bit;
             expected = sel ? b : a;
 
             if (out !== expected) begin
-                $display("ERROR: a = %a, b = %b, sel = %b | out = %b, expected = %b", a, b, sel, out, expected);
+                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
                 error_count = error_count + 1;
             end
         end
@@ -62,7 +62,7 @@ module tb_mux2to1_32bit;
             expected = sel ? b : a;
 
             if (out !== expected) begin
-                $display("ERROR: a = %a, b = %b, sel = %b | out = %b, expected = %b", a, b, sel, out, expected);
+                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
                 error_count = error_count + 1;
             end
         end
@@ -77,7 +77,7 @@ module tb_mux2to1_32bit;
             expected = sel ? b : a;
 
             if (out !== expected) begin
-                $display("ERROR: a = %a, b = %b, sel = %b | out = %b, expected = %b", a, b, sel, out, expected);
+                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
                 error_count = error_count + 1;
             end
         end
@@ -92,7 +92,7 @@ module tb_mux2to1_32bit;
             expected = sel ? b : a;
 
             if (out !== expected) begin
-                $display("ERROR: a = %a, b = %b, sel = %b | out = %b, expected = %b", a, b, sel, out, expected);
+                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
                 error_count = error_count + 1;
             end
         end
