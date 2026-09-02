@@ -34,7 +34,7 @@ module alu_32bit (input [31:0] a, b, input [2:0] op, output [31:0] result, outpu
     mux2to1_32bit mux3 (.a(mux1_out), .b(mux2_out), .sel(op[2]), .out(result));
 
     // get zero
-    assign zero = (result == {31{1'b0}});
+    assign zero = (result == {32{1'b0}});
 
     // cout mux
     wire mux4_cout;
