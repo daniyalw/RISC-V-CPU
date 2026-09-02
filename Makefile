@@ -10,7 +10,7 @@ BUILD_DIR = build
 WAVE_DIR  = waves
 
 # default target
-all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit
+all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit
 
 ##############################################
 # individual simulation targets
@@ -55,6 +55,18 @@ add_sub_4bit: $(BUILD_DIR) $(WAVE_DIR)
 		$(TB_DIR)/tb_add_sub_4bit.v
 	$(VVP) $(BUILD_DIR)/add_sub_4bit.out
 
+mux4to1_4bit: $(BUILD_DIR) $(WAVE_DIR)
+	$(IVERILOG) -o $(BUILD_DIR)/mux4to1_4bit.out \
+		$(RTL_DIR)/mux4to1_4bit.v \
+		$(TB_DIR)/tb_mux4to1_4bit.v
+	$(VVP) $(BUILD_DIR)/mux4to1_4bit.out
+
+mux2to1_4bit: $(BUILD_DIR) $(WAVE_DIR)
+	$(IVERILOG) -o $(BUILD_DIR)/mux2to1_4bit.out \
+		$(RTL_DIR)/mux2to1_4bit.v \
+		$(TB_DIR)/tb_mux2to1_4bit.v
+	$(VVP) $(BUILD_DIR)/mux2to1_4bit.out
+
 ##############################################
 # open waveforms
 ##############################################
@@ -77,6 +89,12 @@ wave_ripple_carry_4bit:
 wave_add_sub_4bit:
 	$(GTKWAVE) $(WAVE_DIR)/add_sub_4bit.vcd
 
+wave_mux4to1_4bit:
+	$(GTKWAVE) $(WAVE_DIR)/mux4to1_4bit.vcd
+
+wave_mux2to1_4bit:
+	$(GTKWAVE) $(WAVE_DIR)/mux2to1_4bit.vcd
+
 ##############################################
 # cleanup
 ##############################################
@@ -86,5 +104,5 @@ clean:
 	del $(WAVE_DIR)\\*.vcd
 
 .PHONY: all clean \
-	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit \
-	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit wave_add_sub_4bit
+	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit \
+	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit wave_add_sub_4bit wave_mux4to1_4bit wave_mux2to1_4bit
