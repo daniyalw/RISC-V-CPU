@@ -24,7 +24,6 @@ module tb_mux4to1_4bit;
 
         $display("OUTPUT"); // should output nothing if no error
 
-        // 64 cases
         for (i = 0; i < 65536; i = i + 1) begin
             {sel[1:0], d, c, b, a} = i[15:0];
             #10;
