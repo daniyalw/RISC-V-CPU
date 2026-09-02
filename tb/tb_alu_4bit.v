@@ -54,17 +54,17 @@ module tb_alu_4bit;
             expected_zero = (expected_result == 4'b0000);
 
             if (result !== expected_result) begin
-                $display("RESULT ERROR: a = %b, b = %b | op = %b | result = %b, zero = %b, cout = %b", a, b, op, result, zero, cout);
+                $display("ERROR: a = %b, b = %b | op = %b | result = %b (expected = %b), zero = %b, cout = %b", a, b, op, result, expected_result, zero, cout);
                 error_count = error_count + 1;
             end
 
             if (cout !== expected_cout) begin
-                $display("COUT ERROR: a = %b, b = %b | op = %b | result = %b, zero = %b, cout = %b", a, b, op, result, zero, cout);
+                $display("COUT ERROR: a = %b, b = %b | op = %b | result = %b, zero = %b, cout = %b (expected = %b)", a, b, op, result, zero, cout, expected_cout);
                 error_count = error_count + 1;
             end
 
             if (zero !== expected_zero) begin
-                $display("ZERO ERROR: a = %b, b = %b | op = %b | result = %b, zero = %b, cout = %b", a, b, op, result, zero, cout);
+                $display("ZERO ERROR: a = %b, b = %b | op = %b | result = %b, zero = %b (expected = %b), cout = %b", a, b, op, result, zero, expected_zero, cout);
                 error_count = error_count + 1;
             end
         end

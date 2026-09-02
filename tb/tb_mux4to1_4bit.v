@@ -35,7 +35,7 @@ module tb_mux4to1_4bit;
                     d;
 
             if (out !== expected)
-                $display("ERROR: a: %b; b: %b; c: %b; d: %b | sel: %b | out: %b", a, b, c, d, sel, out);
+                $display("ERROR: a: %b; b: %b; c: %b; d: %b | sel: %b | out: %b, expected = %b", a, b, c, d, sel, out, expected);
         end
 
         $finish;
