@@ -11,52 +11,34 @@ module tb_mux2to1;
         .out(out)
     );
 
+    integer i, num_tasks = 8, error_count = 0;
+    reg expected_out;
+
+    `include "tb/tb_final_display.vh"
+
+    task error_task;
+        begin
+            $display("ERROR: a = %b, b = %b | sel = %b | out = %b (expected = %b)", a, b, sel, out, expected_out);
+        end
+    endtask
+
     initial begin
         $dumpfile("waves/mux2to1.vcd");
         $dumpvars(0, tb_mux2to1);
 
-        $display("a\tb\tsel\t|\tout");
-        $display("=========================");
+        $display("Running 1-bit 2:1 MUX...");
 
-        a = 0; b = 0; sel = 0;
-        #10;
+        for (i = 0; i < num_tasks; i = i + 1) begin
+            {sel, b, a} = i[2:0];
+            #10;
 
-        $display("%b\t%b\t%b\t|\t%b", a, b, sel, out);
+            expected_out = sel ? b : a;
 
-        a = 0; b = 1; sel = 0;
-        #10;
+            if (out !== expected_out)
+                error_task();
+        end
 
-        $display("%b\t%b\t%b\t|\t%b", a, b, sel, out);
-
-        a = 1; b = 0; sel = 0;
-        #10;
-
-        $display("%b\t%b\t%b\t|\t%b", a, b, sel, out);
-
-        a = 1; b = 1; sel = 0;
-        #10;
-
-        $display("%b\t%b\t%b\t|\t%b", a, b, sel, out);
-
-        a = 0; b = 0; sel = 1;
-        #10;
-
-        $display("%b\t%b\t%b\t|\t%b", a, b, sel, out);
-
-        a = 0; b = 1; sel = 1;
-        #10;
-
-        $display("%b\t%b\t%b\t|\t%b", a, b, sel, out);
-
-        a = 1; b = 0; sel = 1;
-        #10;
-
-        $display("%b\t%b\t%b\t|\t%b", a, b, sel, out);
-
-        a = 1; b = 1; sel = 1;
-        #10;
-
-        $display("%b\t%b\t%b\t|\t%b", a, b, sel, out);
+        tb_final_display("mux2to1");
 
         $finish;
     end

@@ -19,15 +19,24 @@ module tb_alu_4bit;
     reg [3:0] expected_result;
     reg expected_zero;
     reg expected_cout;
-    integer error_count = 0;
+    integer error_count = 0, num_tasks = 2048;
+
+    `include "tb/tb_final_display.vh"
+
+    task error_task;
+        begin
+            $display("ERROR: a = %b, b = %b | op = %b | result = %b (expected = %b), zero = %b (expected = %b), cout = %b (expected = %b)", a, b, op, result, expected_result, zero, expected_zero, cout, expected_cout);
+            error_count = error_count + 1;
+        end
+    endtask
 
     initial begin
         $dumpfile("waves/alu_4bit.vcd");
         $dumpvars(0, tb_alu_4bit);
 
-        $display("OUTPUT");
+        $display("Running 4-bit ALU tests...");
 
-        for (i = 0; i < 2048; i = i + 1) begin
+        for (i = 0; i < num_tasks; i = i + 1) begin
             {op, b, a} = i[10:0];
             #10;
 
@@ -53,26 +62,11 @@ module tb_alu_4bit;
 
             expected_zero = (expected_result == 4'b0000);
 
-            if (result !== expected_result) begin
-                $display("ERROR: a = %b, b = %b | op = %b | result = %b (expected = %b), zero = %b, cout = %b", a, b, op, result, expected_result, zero, cout);
-                error_count = error_count + 1;
-            end
-
-            if (cout !== expected_cout) begin
-                $display("COUT ERROR: a = %b, b = %b | op = %b | result = %b, zero = %b, cout = %b (expected = %b)", a, b, op, result, zero, cout, expected_cout);
-                error_count = error_count + 1;
-            end
-
-            if (zero !== expected_zero) begin
-                $display("ZERO ERROR: a = %b, b = %b | op = %b | result = %b, zero = %b (expected = %b), cout = %b", a, b, op, result, zero, expected_zero, cout);
-                error_count = error_count + 1;
-            end
+            if ((result !== expected_result) || (cout !== expected_cout) || (zero !== expected_zero))
+                error_task();
         end
 
-        $display("==============================================================\nERROR COUNT: %0d", error_count);
-
-        if (error_count == 0)
-            $display("TESTBENCH PASSED");
+        tb_final_display("alu_4bit");
 
         $finish;
     end

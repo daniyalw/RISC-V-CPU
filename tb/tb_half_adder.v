@@ -14,29 +14,36 @@ module tb_half_adder;
     integer i;
     reg expected_sum;
     reg expected_carry;
+    integer num_tasks = 4, error_count = 0;
+
+    `include "tb/tb_final_display.vh"
+
+    task error_task;
+        begin
+            $display("ERROR: a = %b, b = %b | sum = %b (expected = %b), carry = %b", a, b, sum, expected_sum, carry, expected_carry);
+            error_count = error_count + 1;
+        end
+    endtask
 
     initial begin
         $dumpfile("waves/half_adder.vcd");
         $dumpvars(0, tb_half_adder);
 
-        $display("a\tb\t|\tsum\tcarry");
-        $display("=====================================");
+        $display("Running half adder...");
 
         // 4 cases
-        for (i = 0; i < 4; i = i + 1) begin
+        for (i = 0; i < num_tasks; i = i + 1) begin
             {b, a} = i[1:0];
             #10;
-            $display("%b\t%b\t|\t%b\t%b", a, b, sum, carry);
 
             expected_sum = a ^ b;
             expected_carry = a & b;
 
-            if (sum !== expected_sum)
-                $display("SUM ERROR");
-
-            if (carry !== expected_carry)
-                $display("CARRY ERROR");
+            if ((sum !== expected_sum) || (carry !== expected_carry))
+                error_task();
         end
+
+        tb_final_display("half_adder");
 
         $finish;
     end

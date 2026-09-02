@@ -15,16 +15,25 @@ module tb_mux4to1_4bit;
         .out(out)
     );
 
-    integer i; // used in for-loop
+    integer i, num_tasks = 65536, error_count = 0;
     reg [3:0] expected;
+
+    `include "tb/tb_final_display.vh"
+
+    task error_task;
+        begin
+            $display("ERROR: a: %b; b: %b; c: %b; d: %b | sel: %b | out: %b, expected = %b", a, b, c, d, sel, out, expected);
+            error_count = error_count + 1;
+        end
+    endtask
 
     initial begin
         $dumpfile("waves/mux4to1_4bit.vcd");
         $dumpvars(0, tb_mux4to1_4bit);
 
-        $display("OUTPUT"); // should output nothing if no error
+        $display("Running 4-bit 4:1 MUX..."); // should output nothing if no error
 
-        for (i = 0; i < 65536; i = i + 1) begin
+        for (i = 0; i < num_tasks; i = i + 1) begin
             {sel[1:0], d, c, b, a} = i[15:0];
             #10;
 
@@ -35,8 +44,10 @@ module tb_mux4to1_4bit;
                     d;
 
             if (out !== expected)
-                $display("ERROR: a: %b; b: %b; c: %b; d: %b | sel: %b | out: %b, expected = %b", a, b, c, d, sel, out, expected);
+                error_task();
         end
+
+        tb_final_display("mux4to1_4bit");
 
         $finish;
     end

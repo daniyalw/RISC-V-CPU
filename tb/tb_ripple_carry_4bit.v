@@ -7,30 +7,36 @@ module tb_ripple_carry_4bit;
 
     ripple_carry_4bit uut (.a(a), .b(b), .cin(cin), .sum(sum), .cout(cout));
 
-    integer i;
+    integer i, num_tasks = 512, error_count = 0;
     reg [3:0] expected_sum;
     reg expected_cout;
+
+    `include "tb/tb_final_display.vh"
+
+    task error_task;
+        begin
+            $display("ERROR: a = %b, b = %b | cin = %b | sum = %b (expected = %b), cout = %b (expected = %b)", a, b, cin, sum, expected_sum, cout, expected_cout);
+            error_count = error_count + 1;
+        end
+    endtask
 
     initial begin
         $dumpfile("waves/ripple_carry_4bit.vcd");
         $dumpvars(0, tb_ripple_carry_4bit);
 
-        $display("a\tb\tcin\t|\tsum\tcout");
-        $display("=======================================================================");
+        $display("Running 4-bit ripple carry adder...");
 
-        for (i = 0; i < 512; i = i + 1) begin
+        for (i = 0; i < num_tasks; i = i + 1) begin
             {cin, b, a} = i[8:0];
             #10;
-            $display("%b\t%b\t%b\t|\t%b\t%b", a, b, cin, sum, cout);
 
             {expected_cout, expected_sum} = a + b + cin;
 
-            if (sum !== expected_sum)
-                $display("ERROR SUM");
-
-            if (cout !== expected_cout)
-                $display("ERROR COUT");
+            if ((sum !== expected_sum) || (cout !== expected_cout))
+                error_task();
         end
+
+        tb_final_display("ripple_carry_4bit");
 
         $finish;
     end

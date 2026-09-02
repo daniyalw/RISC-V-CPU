@@ -13,22 +13,34 @@ module tb_mux2to1_4bit;
 
     integer i;
     reg [3:0] expected;
+    integer num_tasks = 512, error_count = 0;
+
+    `include "tb/tb_final_display.vh"
+
+    task error_task;
+        begin
+            $display("ERROR: a: %b; b: %b | sel: %b | out: %b, expected = %b", a, b, sel, out, expected);
+            error_count = error_count + 1;
+        end
+    endtask
 
     initial begin
         $dumpfile("waves/mux2to1_4bit.vcd");
         $dumpvars(0, tb_mux2to1_4bit);
 
-        $display("OUTPUT"); // should be no output unless error
+        $display("Running 4-bit 2:1 MUX...");
 
-        for (i = 0; i < 512; i = i + 1) begin
+        for (i = 0; i < num_tasks; i = i + 1) begin
             {sel, b, a} = i[8:0];
             #10;
 
             expected = (sel == 0) ? a : b;
 
             if (out !== expected)
-                $display("ERROR: a: %b; b: %b | sel: %b | out: %b, expected = %b", a, b, sel, out, expected);
+                error_task();
         end
+
+        tb_final_display("mux2to1_4bit");
 
         $finish;
     end

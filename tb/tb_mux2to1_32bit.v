@@ -12,95 +12,63 @@ module tb_mux2to1_32bit;
     );
 
     reg [31:0] expected;
-    integer error_count = 0;
+    integer i, num_tasks = 10, error_count = 0;
 
-    integer i;
+    `include "tb/tb_final_display.vh"
+
+    task error_task;
+        begin
+            $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
+            error_count = error_count + 1;
+        end
+    endtask
+
+    task testcase;
+        begin
+            for (i = 0; i < 2; i = i + 1) begin
+                sel = i;
+                #10;
+
+                expected = sel ? b : a;
+
+                if (out !== expected)
+                    error_task();
+            end
+        end
+    endtask
 
     initial begin
         $dumpfile("waves/mux2to1_32bit.vcd");
         $dumpvars(0, tb_mux2to1_32bit);
 
-        $display("OUTPUT"); // should be no output unless error
+        $display("Running 32-bit 2:1 MUX..."); // should be no output unless error
 
         // will not test all cases because that's 2^65 cases (too many)
         // test case 1
-        for (i = 0; i < 2; i = i + 1) begin
-            a = 32'h00000000;
-            b = 32'hFFFFFFFF; sel = i;
-            #10;
-
-            expected = sel ? b : a;
-
-            if (out !== expected) begin
-                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
-                error_count = error_count + 1;
-            end
-        end
-
-        i = 0;
+        a = 32'h00000000;
+        b = 32'hFFFFFFFF;
+        testcase();
 
         // test case 2
-        for (i = 0; i < 2; i = i + 1) begin
-            a = 32'hFFFFFFFF; b = 32'h00000000; sel = i;
-            #10;
-
-            expected = sel ? b : a;
-
-            if (out !== expected) begin
-                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
-                error_count = error_count + 1;
-            end
-        end
-
-        i = 0;
+        a = 32'hFFFFFFFF;
+        b = 32'h00000000;
+        testcase();
 
         // test case 3
-        for (i = 0; i < 2; i = i + 1) begin
-            a = 32'hAAAAAAAA; b = 32'h55555555; sel = i;
-            #10;
-
-            expected = sel ? b : a;
-
-            if (out !== expected) begin
-                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
-                error_count = error_count + 1;
-            end
-        end
-
-        i = 0;
+        a = 32'hAAAAAAAA;
+        b = 32'h55555555;
+        testcase();
 
         // test case 4
-        for (i = 0; i < 2; i = i + 1) begin
-            a = 32'h12345678; b = 32'h87654321; sel = i;
-            #10;
-
-            expected = sel ? b : a;
-
-            if (out !== expected) begin
-                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
-                error_count = error_count + 1;
-            end
-        end
-
-        i = 0;
+        a = 32'h12345678;
+        b = 32'h87654321;
+        testcase();
 
         // test case 5
-        for (i = 0; i < 2; i = i + 1) begin
-            a = 32'h00000001; b = 32'h80000000; sel = i;
-            #10;
+        a = 32'h00000001; b = 32'h80000000;
+        testcase();
 
-            expected = sel ? b : a;
-
-            if (out !== expected) begin
-                $display("ERROR: a = %h, b = %h, sel = %h | out = %h, expected = %h", a, b, sel, out, expected);
-                error_count = error_count + 1;
-            end
-        end
-
-        $display("ERROR COUNT: %0d", error_count);
-
-        if (error_count == 0)
-            $display("TESTBENCH PASSED");
+        tb_final_display("mux2to1_32bit");
 
         $finish;
     end
