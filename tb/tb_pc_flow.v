@@ -33,6 +33,7 @@ module tb_pc_flow;
 
         $display("Running PC flow tests...");
 
+        // reset = 1 -> rising edge of reset will then force pc_current = 0, and then reset = 0 followed by #1 will mean that pc_next = pc_current + 4 = 4, and so on
         reset = 1;
         #1;
         reset = 0;

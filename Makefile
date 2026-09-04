@@ -10,7 +10,7 @@ BUILD_DIR = build
 WAVE_DIR  = waves
 
 # default target
-all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow
+all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file
 
 ##############################################
 # individual simulation targets
@@ -120,6 +120,12 @@ tb_pc_flow: $(BUILD_DIR) $(WAVE_DIR)
 		$(TB_DIR)/tb_pc_flow.v
 	$(VVP) $(BUILD_DIR)/tb_pc_flow.out
 
+register_file: $(BUILD_DIR) $(WAVE_DIR)
+	$(IVERILOG) -o $(BUILD_DIR)/register_file.out \
+		$(RTL_DIR)/register_file.v \
+		$(TB_DIR)/tb_register_file.v
+	$(VVP) $(BUILD_DIR)/register_file.out
+
 ##############################################
 # open waveforms
 ##############################################
@@ -169,6 +175,9 @@ wave_pc_plus_4:
 wave_tb_pc_flow:
 	$(GTKWAVE) $(WAVE_DIR)/tb_pc_flow.vcd
 
+wave_register_file:
+	$(GTKWAVE) $(WAVE_DIR)/register_file.vcd
+
 ##############################################
 # cleanup
 ##############################################
@@ -178,5 +187,5 @@ clean:
 	del $(WAVE_DIR)\\*.vcd
 
 .PHONY: all clean \
-	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow \
-	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit wave_add_sub_4bit wave_mux4to1_4bit wave_mux2to1_4bit wave_alu_4bit wave_mux2to1_32bit wave_mux4to1_32bit wave_alu_32bit wave_register_32bit wave_pc_plus_4 wave_tb_pc_flow
+	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file \
+	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit wave_add_sub_4bit wave_mux4to1_4bit wave_mux2to1_4bit wave_alu_4bit wave_mux2to1_32bit wave_mux4to1_32bit wave_alu_32bit wave_register_32bit wave_pc_plus_4 wave_tb_pc_flow wave_register_file
