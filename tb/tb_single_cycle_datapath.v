@@ -50,6 +50,10 @@ module tb_single_cycle_datapath;
         instruction = {7'b0000000, 5'd2, 5'd1, 3'b000, 5'd3, 7'b0110011}; // add x3, x1, x2;
         check_task(32'd10, 3);
 
+        // test 4
+        instruction = {12'd0, 5'd3, 3'b000, 5'd4, 7'b0010011}; // addi x4, x3, 0
+        check_task(32'd10, 4);
+
         tb_final_display("single_cycle_datapath");
 
         $finish;
