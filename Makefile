@@ -10,7 +10,7 @@ BUILD_DIR = build
 WAVE_DIR  = waves
 
 # default target
-all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator
+all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder
 
 ##############################################
 # individual simulation targets
@@ -138,6 +138,12 @@ immediate_generator: $(BUILD_DIR) $(WAVE_DIR)
 		$(TB_DIR)/tb_immediate_generator.v
 	$(VVP) $(BUILD_DIR)/immediate_generator.out
 
+control_decoder: $(BUILD_DIR) $(WAVE_DIR)
+	$(IVERILOG) -o $(BUILD_DIR)/control_decoder.out \
+		$(RTL_DIR)/control_decoder.v \
+		$(TB_DIR)/tb_control_decoder.v
+	$(VVP) $(BUILD_DIR)/control_decoder.out
+
 ##############################################
 # open waveforms
 ##############################################
@@ -196,6 +202,9 @@ wave_instruction_field_decoder:
 wave_immediate_generator:
 	$(GTKWAVE) $(WAVE_DIR)/immediate_generator.vcd
 
+wave_control_decoder:
+	$(GTKWAVE) $(WAVE_DIR)/control_decoder.vcd
+
 ##############################################
 # cleanup
 ##############################################
@@ -205,5 +214,5 @@ clean:
 	del $(WAVE_DIR)\\*.vcd
 
 .PHONY: all clean \
-	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator \
-	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit wave_add_sub_4bit wave_mux4to1_4bit wave_mux2to1_4bit wave_alu_4bit wave_mux2to1_32bit wave_mux4to1_32bit wave_alu_32bit wave_register_32bit wave_pc_plus_4 wave_tb_pc_flow wave_register_file wave_instruction_field_decoder wave_immediate_generator
+	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder \
+	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit wave_add_sub_4bit wave_mux4to1_4bit wave_mux2to1_4bit wave_alu_4bit wave_mux2to1_32bit wave_mux4to1_32bit wave_alu_32bit wave_register_32bit wave_pc_plus_4 wave_tb_pc_flow wave_register_file wave_instruction_field_decoder wave_immediate_generator wave_control_decoder
