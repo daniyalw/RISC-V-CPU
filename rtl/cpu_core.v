@@ -1,0 +1,10 @@
+module cpu_core (input clk, reset, enable);
+    wire [31:0] next_pc, pc;
+    wire [31:0] instruction;
+    wire [31:0] alu_result;
+
+    program_counter pc_counter (.clk(clk), .reset(reset), .enable(enable), .next_pc(next_pc), .pc(pc));
+    instruction_memory inst_mem (.address(pc), .instruction(instruction));
+    single_cycle_datapath scd (.instruction(instruction), .clk(clk), .reset(reset), .alu_result(alu_result));
+    pc_plus_4 pc4 (.pc(pc), .next_pc(next_pc));
+endmodule
