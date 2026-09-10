@@ -31,19 +31,27 @@ module tb_instruction_memory;
 
         // test 1
         address = 32'd0;
-        check_task({12'd5, 5'd0, 3'b000, 5'd1, 7'b0010011});
+        check_task({12'd12, 5'd0, 3'b000, 5'd1, 7'b0010011});
 
         // test 2
         address = 32'd4;
-        check_task({12'd0, 5'd1, 3'b000, 5'd2, 7'b0010011});
+        check_task({12'd10, 5'd1, 3'b010, 5'd2, 7'b0010011});
 
         // test 3
         address = 32'd8;
-        check_task({7'b0000000, 5'd2, 5'd1, 3'b000, 5'd3, 7'b0110011});
+        check_task({12'd3, 5'd2, 3'b011, 5'd3, 7'b0010011});
 
         // test 4
         address = 32'd12;
-        check_task({12'd0, 5'd3, 3'b000, 5'd4, 7'b0010011});
+        check_task({12'd15, 5'd3, 3'b100, 5'd4, 7'b0010011});
+
+        // test 5
+        address = 32'd16;
+        check_task({7'b0000000, 5'd1, 5'd4, 3'b000, 5'd5, 7'b0110011});
+
+        // test 6
+        address = 32'd20;
+        check_task({7'b0100000, 5'd2, 5'd5, 3'b000, 5'd6, 7'b0110011});
 
         tb_final_display("instruction_memory");
 

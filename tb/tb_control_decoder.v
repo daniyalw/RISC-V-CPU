@@ -58,9 +58,21 @@ module tb_control_decoder;
         opcode = 7'b0010011; funct3 = 3'b000; funct7 = 7'b0000000;
         check(3'b000, 1'b1, 1'b1, 1'b0);
 
+        // test 7 - ANDI
+        opcode = 7'b0010011; funct3 = 3'b111; funct7 = 7'b0000000;
+        check(3'b010, 1'b1, 1'b1, 1'b0);
+
+        // test 8 - ORI
+        opcode = 7'b0010011; funct3 = 3'b110; funct7 = 7'b0000000;
+        check(3'b011, 1'b1, 1'b1, 1'b0);
+
+        // test 9 - XORI
+        opcode = 7'b0010011; funct3 = 3'b100; funct7 = 7'b0000000;
+        check(3'b100, 1'b1, 1'b1, 1'b0);
+
         // invalid cases
         // test 1 - unsuported I-type
-        opcode = 7'b0010011; funct3 = 3'b111; funct7 = 7'b0000000;
+        opcode = 7'b0010011; funct3 = 3'b001; funct7 = 7'b0000000;
         check(3'b111, 1'b0, 1'b0, 1'b1);
 
         // test 2 - unsupported opcode

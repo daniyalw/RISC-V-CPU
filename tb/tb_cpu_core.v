@@ -14,8 +14,6 @@ module tb_cpu_core;
         begin
             num_tasks = num_tasks + 1;
 
-            $display("Instruction %0d: pc = %h | ALU result = %h | pc_enable = %b", num_tasks, uut.pc, uut.alu_result, uut.pc_enable);
-
             if ((uut.pc !== expected_pc) || (uut.alu_result !== expected_alu_result)) begin
                 $display("Error: instruction %0d failed: pc = %h (expected = %h), ALU result = %h (expected = %h)", num_tasks, uut.pc, expected_pc, uut.alu_result, expected_alu_result);
                 error_count = error_count + 1;
@@ -34,25 +32,33 @@ module tb_cpu_core;
         reset = 0;
         #1;
 
-        // 0, 4, 8, 12 are the program counter, and the 5, 5, 10, 10 are the ALU results from the four operations in the hardcoded instruction memory
+        // program counter advances by 4 each time (0, 4, 8, ...), the second param in check_task is the ALU result of the operation
         // test 1
-        check_task(0, 5);
+        check_task(0, 32'd12);
 
         // test 2
         @(posedge clk); #1;
-        check_task(4, 5);
+        check_task(4, 32'd8);
 
         // test 3
         @(posedge clk); #1;
-        check_task(8, 10);
+        check_task(8, 32'd11);
 
         // test 4
         @(posedge clk); #1;
-        check_task(12, 10);
+        check_task(12, 32'd4);
 
         // test 5
         @(posedge clk); #1;
-        check_task(16, 0);
+        check_task(16, 32'd16);
+
+        // test 6
+        @(posedge clk); #1;
+        check_task(20, 32'd8);
+
+        // test 7
+        @(posedge clk); #1;
+        check_task(24, 32'd0);
 
         tb_final_display("cpu_core");
 
