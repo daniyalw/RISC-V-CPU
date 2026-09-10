@@ -14,6 +14,8 @@ module tb_cpu_core;
         begin
             num_tasks = num_tasks + 1;
 
+            $display("Instruction %0d: pc = %h | ALU result = %h | pc_enable = %b", num_tasks, uut.pc, uut.alu_result, uut.pc_enable);
+
             if ((uut.pc !== expected_pc) || (uut.alu_result !== expected_alu_result)) begin
                 $display("Error: instruction %0d failed: pc = %h (expected = %h), ALU result = %h (expected = %h)", num_tasks, uut.pc, expected_pc, uut.alu_result, expected_alu_result);
                 error_count = error_count + 1;
@@ -47,6 +49,10 @@ module tb_cpu_core;
         // test 4
         @(posedge clk); #1;
         check_task(12, 10);
+
+        // test 5
+        @(posedge clk); #1;
+        check_task(16, 0);
 
         tb_final_display("cpu_core");
 

@@ -1,7 +1,7 @@
 module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg alu_src, reg_write, invalid_instruction); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
     always @ (*) begin
         // safe defaults
-        alu_op = 3'b000;
+        alu_op = 3'b111; // 3'b000 is the adder opcode, so using the unused 3'b111 as invalid opcode makes it easy for the ALU to notice that
         alu_src = 1'b0;
         reg_write = 1'b0;
         invalid_instruction = 1'b1;

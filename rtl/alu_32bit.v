@@ -28,6 +28,8 @@ module alu_32bit (input [31:0] a, b, input [2:0] op, output [31:0] result, outpu
     wire [31:0] mux1_out;
     wire [31:0] mux2_out;
 
+    // remember that 3'b111 is the "invalid" opcode, for when I deliberately need to set the opcode to invalid in the control decoder
+
     mux4to1_32bit mux1 (.a(adder_result), .b(sub_result), .c(and_result), .d(or_result), .sel(op[1:0]), .out(mux1_out));
     mux4to1_32bit mux2 (.a(xor_result), .b(invalid_result), .c(invalid_result), .d(invalid_result), .sel(op[1:0]), .out(mux2_out));
 
