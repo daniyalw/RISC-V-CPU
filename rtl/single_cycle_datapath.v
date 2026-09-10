@@ -1,9 +1,9 @@
-module single_cycle_datapath (input [31:0] instruction, input clk, reset, output [31:0] alu_result);
+module single_cycle_datapath (input [31:0] instruction, input clk, reset, output [31:0] alu_result, output invalid_instruction);
     wire [6:0] opcode;
     wire [2:0] funct3;
     wire [6:0] funct7;
     wire [2:0] alu_op;
-    wire alu_src, reg_write, invalid_instruction;
+    wire alu_src, reg_write;
     wire [31:0] rd_data, rs1_data, rs2_data, immediate;
     wire alu_cout;
     wire alu_zero;

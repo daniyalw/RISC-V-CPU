@@ -61,19 +61,19 @@ module tb_control_decoder;
         // invalid cases
         // test 1 - unsuported I-type
         opcode = 7'b0010011; funct3 = 3'b111; funct7 = 7'b0000000;
-        check(3'b000, 1'b0, 1'b0, 1'b1);
+        check(3'b111, 1'b0, 1'b0, 1'b1);
 
         // test 2 - unsupported opcode
         opcode = 7'b0000011; funct3 = 3'b111; funct7 = 7'b0000000;
-        check(3'b000, 1'b0, 1'b0, 1'b1);
+        check(3'b111, 1'b0, 1'b0, 1'b1);
 
         // test 3 - bad R-type funct7 for ADD/SUB (ADD)
         opcode = 7'b0110011; funct3 = 3'b000; funct7 = 7'b1111111;
-        check(3'b000, 1'b0, 1'b0, 1'b1);
+        check(3'b111, 1'b0, 1'b0, 1'b1);
 
         // test 4 - bad R-type funct7 for AND/OR/XOR (AND)
         opcode = 7'b011011; funct3 = 3'b111; funct7 = 7'b1111111;
-        check(3'b000, 1'b0, 1'b0, 1'b1);
+        check(3'b111, 1'b0, 1'b0, 1'b1);
 
         tb_final_display("control_decoder");
 
