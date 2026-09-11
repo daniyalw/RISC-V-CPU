@@ -2,15 +2,30 @@
 IVERILOG = iverilog
 VVP      = vvp
 GTKWAVE  = gtkwave
+RISCVELF = riscv-none-elf
+ELFFLAGS = -march=rv32i -mabi=ilp32
 
 # directories
 RTL_DIR   = rtl
 TB_DIR    = tb
 BUILD_DIR = build
 WAVE_DIR  = waves
+PROGRAM_DIR = programs
+TOOLS_DIR = tools
 
 # default target
-all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder single_cycle_datapath instruction_memory cpu_core
+all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder single_cycle_datapath instruction_memory cpu_core programs
+
+
+##############################################
+# external assembly programs runnable in CPU
+##############################################
+
+test_hex: $(PROGRAM_DIR) $(TOOLS_DIR)
+	$(RISCVELF)-as $(ELFFLAGS) programs/test.S -o build/test.o
+	$(RISCVELF)-ld -T programs/link.ld build/test.o -o build/test.elf
+	$(RISCVELF)-objcopy -O binary build/test.elf build/test.bin
+	python $(TOOLS_DIR)/bin_to_hex.py test.bin test.hex
 
 ##############################################
 # individual simulation targets
@@ -258,8 +273,9 @@ wave_cpu_core:
 ##############################################
 
 clean:
-	del $(BUILD_DIR)\\*.out
+	del $(BUILD_DIR)\\*.out $(BUILD_DIR)\\*.elf $(BUILD_DIR)\\*.o $(BUILD_DIR)\\*.bin
 	del $(WAVE_DIR)\\*.vcd
+	del $(PROGRAM_DIR)\\*.hex
 
 .PHONY: all clean \
 	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder single_cycle_datapath instruction_memory cpu_core \

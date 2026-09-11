@@ -2,7 +2,7 @@ module cpu_core (input clk, reset, enable);
     wire [31:0] next_pc, pc;
     wire [31:0] instruction;
     wire [31:0] alu_result;
-    wire [31:0] invalid_instruction;
+    wire invalid_instruction;
     wire pc_enable = enable && ~scd.invalid_instruction;
 
     single_cycle_datapath scd (.instruction(instruction), .clk(clk), .reset(reset), .alu_result(alu_result), .invalid_instruction(invalid_instruction));

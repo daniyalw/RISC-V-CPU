@@ -15,7 +15,7 @@ module tb_cpu_core;
             num_tasks = num_tasks + 1;
 
             if ((uut.pc !== expected_pc) || (uut.alu_result !== expected_alu_result)) begin
-                $display("Error: instruction %0d failed: pc = %h (expected = %h), ALU result = %h (expected = %h)", num_tasks, uut.pc, expected_pc, uut.alu_result, expected_alu_result);
+                $display("pc=%h | instruction=%h | alu_result=%h | invalid=%b", uut.pc, uut.instruction, uut.alu_result, uut.invalid_instruction);
                 error_count = error_count + 1;
             end
         end
