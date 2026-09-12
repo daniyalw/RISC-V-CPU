@@ -95,7 +95,7 @@ module tb_control_decoder;
         check(3'b111, 1'b0, 1'b0, 1'b1, 1'b0, 2'b00);
 
         // test 4 - bad R-type funct7 for AND/OR/XOR (AND)
-        opcode = 7'b011011; funct3 = 3'b111; funct7 = 7'b1111111;
+        opcode = 7'b0110011; funct3 = 3'b111; funct7 = 7'b1111111;
         check(3'b111, 1'b0, 1'b0, 1'b1, 1'b0, 2'b00);
 
         // test 5 - branch opcode but not valid funct3

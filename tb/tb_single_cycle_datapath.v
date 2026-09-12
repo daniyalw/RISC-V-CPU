@@ -40,12 +40,12 @@ module tb_single_cycle_datapath;
             num_tasks = num_tasks + 1;
             instruction = input_instruction;
             pc = test_pc;
-            target = pc + uut.immediate;
 
             #1;
+            target = pc + uut.immediate;
 
             if ((branch_taken !== expected_taken) || (target !== expected_target)) begin
-                $display("Error: test = %0d, instruction = %h, pc = %h | branch_taken = %b (expected = %b), branch_target = %h (expected = %h)", num_tasks, instruction, uut.pc, branch_taken, expected_taken, branch_target, expected_target);
+                $display("Error: test = %0d, instruction = %h, pc = %h | branch_taken = %b (expected = %b), target = %h (expected = %h)", num_tasks, instruction, pc, branch_taken, expected_taken, target, expected_target);
                 error_count = error_count + 1;
             end
         end
@@ -79,7 +79,15 @@ module tb_single_cycle_datapath;
 
         // test 5
         @(posedge clk);
-        check_branch_task({1'b0, 6'b000000, 5'd0, 5'd0, 3'b000, 4'b0010, 1'b0, 7'b1100011}, 32'd4, 1'b1, 32'd4); //beq x0, x0, 4
+        check_branch_task({1'b0, 6'b000000, 5'd0, 5'd0, 3'b000, 4'b0010, 1'b0, 7'b1100011}, 32'd4, 1'b1, 32'd8); //beq x0, x0, 4
+
+        // test 6
+        @(posedge clk);
+        check_branch_task(32'h00208463, 32'h00000008, 1'b1, 32'h00000010); // beq x1, x2, 8
+
+        // test 7
+        @(posedge clk);
+        check_branch_task(32'h00209463, 32'h00000014, 1'b0, 32'h0000001c); // bne x1, x2, 8
 
         tb_final_display("single_cycle_datapath");
 
