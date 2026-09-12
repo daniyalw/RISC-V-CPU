@@ -1,10 +1,13 @@
-module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg alu_src, reg_write, invalid_instruction); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
+module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg branch, output reg [1:0] branch_type, output reg alu_src, reg_write, invalid_instruction); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
     always @ (*) begin
         // safe defaults
         alu_op = 3'b111; // 3'b000 is the adder opcode, so using the unused 3'b111 as invalid opcode makes it easy for the ALU to notice that
         alu_src = 1'b0;
         reg_write = 1'b0;
         invalid_instruction = 1'b1;
+
+        branch = 1'b0;
+        branch_type = 2'b00;
 
         if (opcode == 7'b0110011) begin
             // R-type
@@ -68,6 +71,21 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
                 invalid_instruction = 1'b0;
             end else begin
                 // all invalid funct3 values end up here, so default values (invalid) prevail
+            end
+        end else if (opcode == 7'b1100011) begin
+            // B-type
+            if (funct3 == 3'b000) begin
+                // BEQ - branch if equal
+                branch = 1'b1;
+                branch_type = 2'b00;
+                invalid_instruction = 1'b0;
+            end else if (funct3 == 3'b001) begin
+                // BNE - branch if not equal
+                branch = 1'b1;
+                branch_type = 2'b01;
+                invalid_instruction = 1'b0;
+            end else begin
+            // all invalid funct3 end up here, default values (invalid) prevail
             end
         end
     end
