@@ -2,15 +2,9 @@
 .globl _start
 
 _start:
-    addi x1, x0, 5
-    addi x2, x0, 5
-    beq  x1, x2, equal
-    addi x3, x0, 99      # should be skipped
-
-equal:
-    addi x3, x0, 42
-    bne  x1, x2, wrong   # should not branch
-    addi x4, x0, 7
-
-wrong:
+    addi x1, x0, 0      # base address
+    addi x2, x0, 42     # value to store
+    sw   x2, 0(x1)      # memory[0] = 42
+    lw   x3, 0(x1)      # x3 = memory[0]
+    addi x4, x3, 1      # proves x3 became 42
     .word 0x00000000

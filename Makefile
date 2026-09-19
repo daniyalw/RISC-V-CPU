@@ -14,7 +14,7 @@ PROGRAM_DIR = programs
 TOOLS_DIR = tools
 
 # default target
-all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder single_cycle_datapath instruction_memory cpu_core programs
+all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder single_cycle_datapath instruction_memory cpu_core programs data_memory
 
 
 ##############################################
@@ -159,6 +159,12 @@ control_decoder: $(BUILD_DIR) $(WAVE_DIR)
 		$(TB_DIR)/tb_control_decoder.v
 	$(VVP) $(BUILD_DIR)/control_decoder.out
 
+data_memory: $(BUILD_DIR) $(WAVE_DIR)
+	$(IVERILOG) -o $(BUILD_DIR)/data_memory.out \
+		$(RTL_DIR)/data_memory.v \
+		$(TB_DIR)/tb_data_memory.v
+	$(VVP) $(BUILD_DIR)/data_memory.out
+
 single_cycle_datapath: $(BUILD_DIR) $(WAVE_DIR)
 	$(IVERILOG) -o $(BUILD_DIR)/single_cycle_datapath.out \
 		$(RTL_DIR)/single_cycle_datapath.v \
@@ -170,6 +176,7 @@ single_cycle_datapath: $(BUILD_DIR) $(WAVE_DIR)
 		$(RTL_DIR)/mux4to1_32bit.v \
 		$(RTL_DIR)/mux2to1_32bit.v \
 		$(RTL_DIR)/mux2to1.v \
+		$(RTL_DIR)/data_memory.v \
 		$(TB_DIR)/tb_single_cycle_datapath.v
 	$(VVP) $(BUILD_DIR)/single_cycle_datapath.out
 
@@ -195,6 +202,7 @@ cpu_core: $(BUILD_DIR) $(WAVE_DIR)
 		$(RTL_DIR)/mux4to1_32bit.v \
 		$(RTL_DIR)/mux2to1_32bit.v \
 		$(RTL_DIR)/mux2to1.v \
+		$(RTL_DIR)/data_memory.v \
 		$(TB_DIR)/tb_cpu_core.v
 	$(VVP) $(BUILD_DIR)/cpu_core.out
 
@@ -268,6 +276,9 @@ wave_instruction_memory:
 wave_cpu_core:
 	$(GTKWAVE) $(WAVE_DIR)/cpu_core.vcd
 
+wave_data_memory:
+	$(GTKWAVE) $(WAVE_DIR)/data_memory.vcd
+
 ##############################################
 # cleanup
 ##############################################
@@ -278,5 +289,5 @@ clean:
 	del $(PROGRAM_DIR)\\*.hex
 
 .PHONY: all clean \
-	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder single_cycle_datapath instruction_memory cpu_core \
-	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit wave_add_sub_4bit wave_mux4to1_4bit wave_mux2to1_4bit wave_alu_4bit wave_mux2to1_32bit wave_mux4to1_32bit wave_alu_32bit wave_register_32bit wave_pc_plus_4 wave_tb_pc_flow wave_register_file wave_instruction_field_decoder wave_immediate_generator wave_control_decoder wave_single_cycle_datapath wave_instruction_memory wave_cpu_core
+	mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder single_cycle_datapath instruction_memory cpu_core data_memory \
+	wave_mux2to1 wave_mux4to1 wave_half_adder wave_full_adder wave_ripple_carry_4bit wave_add_sub_4bit wave_mux4to1_4bit wave_mux2to1_4bit wave_alu_4bit wave_mux2to1_32bit wave_mux4to1_32bit wave_alu_32bit wave_register_32bit wave_pc_plus_4 wave_tb_pc_flow wave_register_file wave_instruction_field_decoder wave_immediate_generator wave_control_decoder wave_single_cycle_datapath wave_instruction_memory wave_cpu_core wave_data_memory

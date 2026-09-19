@@ -1,4 +1,4 @@
-module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg branch, output reg [1:0] branch_type, output reg alu_src, reg_write, invalid_instruction); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
+module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg branch, output reg [1:0] branch_type, output reg alu_src, reg_write, invalid_instruction, mem_read, mem_write, mem_to_reg); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
     always @ (*) begin
         // safe defaults
         alu_op = 3'b111; // 3'b000 is the adder opcode, so using the unused 3'b111 as invalid opcode makes it easy for the ALU to notice that
@@ -8,6 +8,10 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
 
         branch = 1'b0;
         branch_type = 2'b00;
+
+        mem_read = 1'b0;
+        mem_write = 1'b0;
+        mem_to_reg = 1'b0;
 
         if (opcode == 7'b0110011) begin
             // R-type
@@ -72,6 +76,18 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             end else begin
                 // all invalid funct3 values end up here, so default values (invalid) prevail
             end
+        end else if (opcode == 7'b0000011) begin
+            if (funct3 == 3'b010) begin
+                // lw
+                mem_read = 1'b1; mem_write = 1'b0;
+                alu_op = 3'b000; // add because the ALU will compute the data memory address to load word from (addr = rs1_data + immediate)
+                alu_src = 1'b1; // alu_src=1 so that the datapath selects the immediate instead of rs2_data for the second argument for ALU op
+                mem_to_reg = 1'b1; // so that the data memory output is written to rd_data
+                reg_write = 1'b1;
+                invalid_instruction = 1'b0;
+            end else begin
+                // all invalid funct3 values end up here, so default values (invalid) prevail
+            end
         end else if (opcode == 7'b1100011) begin
             // B-type
             if (funct3 == 3'b000) begin
@@ -86,6 +102,18 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
                 invalid_instruction = 1'b0;
             end else begin
             // all invalid funct3 end up here, default values (invalid) prevail
+            end
+        end else if (opcode == 7'b0100011) begin
+            // S-type
+            if (funct3 == 3'b010) begin
+                // sw
+                mem_write = 1'b1; mem_read = 1'b0;
+                alu_op = 3'b000; // add, so ALU can add rs1_data + immediate
+                alu_src = 1'b1; // so datapath picks immediate instead of rs2_data for second argument for ALU op
+                mem_to_reg = 1'b0; reg_write = 1'b0; // no data memory output
+                invalid_instruction = 1'b0;
+            end else begin
+                // all invalid funct3 end up here, default values (invalid) prevail
             end
         end
     end

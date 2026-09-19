@@ -26,8 +26,8 @@ module tb_immediate_generator;
         end
     endtask
 
-    // B-type immedaites are more complicated, that's why I just put the entire test instruction as an input instead of manually constructing the instruction like I did for the I-type ones
-    task check_b_task;
+    // for stuff like B-type, S-type, and LW, it can be easier to just hardcode the instruction so that's why I have this version of the task
+    task check_gen_task;
         input [31:0] test_instruction;
         input [31:0] expected;
 
@@ -74,25 +74,73 @@ module tb_immediate_generator;
 
         // B-type tests - taken from objdump
         // beq x1, x2, 8
-        check_b_task(32'h00208463, 32'h00000008);
+        check_gen_task(32'h00208463, 32'h00000008);
 
         // bne x1, x2, 8
-        check_b_task(32'h00209463, 32'h00000008);
+        check_gen_task(32'h00209463, 32'h00000008);
 
         // beq x0, x0, 4
-        check_b_task({1'b0, 6'b000000, 5'd0, 5'd0, 3'b000, 4'b0010, 1'b0, 7'b1100011}, 32'h00000004); // should I just replace this with the hex version
+        check_gen_task({1'b0, 6'b000000, 5'd0, 5'd0, 3'b000, 4'b0010, 1'b0, 7'b1100011}, 32'h00000004); // should I just replace this with the hex version
 
         // beq x0, x0, 12
-        check_b_task({1'b0, 6'b000000, 5'd0, 5'd0, 3'b000, 4'b0110, 1'b0, 7'b1100011}, 32'h0000000c);
+        check_gen_task({1'b0, 6'b000000, 5'd0, 5'd0, 3'b000, 4'b0110, 1'b0, 7'b1100011}, 32'h0000000c);
 
         // beq x0, x0, -4 (should sign-extend)
-        check_b_task(32'hfe000ee3, 32'hfffffffc);
+        check_gen_task(32'hfe000ee3, 32'hfffffffc);
 
         // beq x0, x0, -8
-        check_b_task(32'hfe000ce3, 32'hfffffff8);
+        check_gen_task(32'hfe000ce3, 32'hfffffff8);
+
+        // sw x2, 0(x1)
+        check_gen_task(32'h0020a023, 32'h00000000);
+
+        // sw x2, 4(x1)
+        check_gen_task(32'h0020a223, 32'h00000004);
+
+        // sw x2, 8(x1)
+        check_gen_task(32'h0020a423, 32'h00000008);
+
+        // sw x2, 12(x1)
+        check_gen_task(32'h0020a623, 32'h0000000c);
+
+        // sw x2, -4(x1)
+        check_gen_task(32'hfe20ae23, 32'hfffffffc);
+
+        // sw x2, -8(x1)
+        check_gen_task(32'hfe20ac23, 32'hfffffff8);
+
+        // sw x2, 2047(x1)
+        check_gen_task(32'h7e20afa3, 32'h000007ff);
+
+        // sw x2, -2048(x1)
+        check_gen_task(32'h8020a023, 32'hfffff800);
+
+        // lw x2, 0(x1)
+        check_gen_task(32'h0000a103, 32'h00000000);
+
+        // lw x2, 4(x1)
+        check_gen_task(32'h0040a103, 32'h00000004);
+
+        // lw x2, 8(x1)
+        check_gen_task(32'h0080a103, 32'h00000008);
+
+        // lw x2, 12(x1)
+        check_gen_task(32'h00c0a103, 32'h0000000c);
+
+        // lw x2, -4(x1)
+        check_gen_task(32'hffc0a103, 32'hfffffffc);
+
+        // lw x2, -8(x1)
+        check_gen_task(32'hff80a103, 32'hfffffff8);
+
+        // lw x2, 2047(x1)
+        check_gen_task(32'h7ff0a103, 32'h000007ff);
+
+        // lw x2, -2048(x1)
+        check_gen_task(32'h8000a103, 32'hfffff800);
 
         // neither B-type nor I-type
-        check_b_task(32'h00000033, 32'h00000000);
+        check_gen_task(32'h00000033, 32'h00000000);
 
         tb_final_display("immediate_generator");
 

@@ -11,6 +11,9 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
     wire branch;
     wire [1:0] branch_type;
 
+    wire mem_read, mem_write, mem_to_reg;
+    wire [31:0] datamem_out;
+
     // the branch is either BEQ/BNE, aka condition; only branch if condition is met
     assign branch_taken = (branch && (((branch_type == 2'b00) && (rs1_data == rs2_data)) || ((branch_type == 2'b01) && (rs1_data != rs2_data))));
     assign branch_target = pc + immediate; // if there is a branch, then this will be correct
@@ -19,10 +22,14 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
 
     immediate_generator imm (.instruction(instruction), .immediate(immediate));
 
-    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .branch_type(branch_type), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction));
+    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .branch_type(branch_type), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg));
 
     register_file rf (.clk(clk), .reset(reset), .write_enable(reg_write), .rs1_addr(rs1), .rs2_addr(rs2), .rd_addr(rd), .rd_data(rd_data), .rs1_data(rs1_data), .rs2_data(rs2_data));
 
     alu_32bit alu (.a(rs1_data), .b(alu_src ? immediate : rs2_data), .op(alu_op), .result(alu_result), .zero(alu_zero), .cout(alu_cout));
-    assign rd_data = alu_result;
+
+    assign rd_data = mem_to_reg ? datamem_out : alu_result; // if mem_to_reg == 1, then the output is the data memory at that address (the ALU result is the address), if mem_to_reg == 0, then the output is the ALU operation result
+
+    // use rs2_data to write value into data memory
+    data_memory dm (.clk(clk), .reset(reset), .mem_write(mem_write), .mem_read(mem_read), .address(alu_result), .write_data(rs2_data), .out_data(datamem_out));
 endmodule

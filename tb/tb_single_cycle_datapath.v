@@ -10,12 +10,12 @@ module tb_single_cycle_datapath;
 
     `include "tb/tb_final_display.vh"
 
-    single_cycle_datapath uut (.instruction(instruction), .clk(clk), .reset(reset), .alu_result(alu_result), .invalid_instruction(invalid_instruction), .branch_taken(branch_taken), .branch_target(branch_target));
+    single_cycle_datapath uut (.instruction(instruction), .clk(clk), .reset(reset), .pc(pc), .alu_result(alu_result), .invalid_instruction(invalid_instruction), .branch_taken(branch_taken), .branch_target(branch_target));
 
     task check_task;
         input [31:0] input_instruction;
         input [31:0] expected_result;
-        input [4:0] port1;
+        input [4:0] port1; // register
 
         begin
             num_tasks = num_tasks + 1;
@@ -42,11 +42,36 @@ module tb_single_cycle_datapath;
             pc = test_pc;
 
             #1;
-            target = pc + uut.immediate;
 
-            if ((branch_taken !== expected_taken) || (target !== expected_target)) begin
-                $display("Error: test = %0d, instruction = %h, pc = %h | branch_taken = %b (expected = %b), target = %h (expected = %h)", num_tasks, instruction, pc, branch_taken, expected_taken, target, expected_target);
+            if ((branch_taken !== expected_taken) || (uut.branch_target !== expected_target)) begin
+                $display("Error: test = %0d, instruction = %h, pc = %h | branch_taken = %b (expected = %b), target = %h (expected = %h)", num_tasks, instruction, pc, branch_taken, expected_taken, uut.branch_target, expected_target);
                 error_count = error_count + 1;
+            end
+        end
+    endtask
+
+    task check_mem_task;
+        input [31:0] input_instruction, expected_datamem, expected_address;
+        input store; // store = 0 if lw, store = 1 if sw
+
+        begin
+            num_tasks = num_tasks + 1;
+            instruction = input_instruction;
+
+            #1;
+
+            if (store == 0) begin
+                // lw
+                if ((uut.mem_read !== 1'b1) || (uut.mem_write !== 1'b0) || (uut.mem_to_reg !== 1'b1) || (uut.datamem_out !== expected_datamem) || (alu_result !== expected_address)) begin
+                    $display("Error: test=%0d instruction=%h | mem_read=%b (expected=%b)   mem_write=%b (expected = %b)   mem_to_reg=%b (expected=%b)   datamem_out=%h (expected=%h)   alu_result=%h (expected=%h)", num_tasks, instruction, uut.mem_read, 1'b1, uut.mem_write, 1'b0, uut.mem_to_reg, 1'b1, uut.datamem_out, expected_datamem, alu_result, expected_address);
+                    error_count = error_count + 1;
+                end
+            end else if (store == 1) begin
+                // sw
+                if ((uut.mem_read !== 1'b0) || (uut.mem_write !== 1'b1) || (uut.mem_to_reg !== 1'b0) || (alu_result !== expected_address)) begin
+                    $display("Error: test=%0d instruction=%h | mem_read=%b (expected=%b)   mem_write=%b (expected = %b)   mem_to_reg=%b (expected=%b)   alu_result=%h (expected=%h)", num_tasks, instruction, uut.mem_read, 1'b0, uut.mem_write, 1'b1, uut.mem_to_reg, 1'b0, alu_result, expected_address);
+                    error_count = error_count + 1;
+                end
             end
         end
     endtask
@@ -71,7 +96,7 @@ module tb_single_cycle_datapath;
 
         // test 3
         @(posedge clk);
-        check_task({7'b0000000, 5'd2, 5'd1, 3'b000, 5'd3, 7'b0110011}, 32'd10, 3); // add x3, x1, x2;
+        check_task({7'b0000000, 5'd2, 5'd1, 3'b000, 5'd3, 7'b0110011}, 32'd10, 3); // add x3, x1, x2; x3=x1+x2=5+5=10
 
         // test 4
         @(posedge clk);
@@ -88,6 +113,18 @@ module tb_single_cycle_datapath;
         // test 7
         @(posedge clk);
         check_branch_task(32'h00209463, 32'h00000014, 1'b0, 32'h0000001c); // bne x1, x2, 8
+
+        // test 8
+        @(posedge clk);
+        check_mem_task(32'h0020a023, 32'd0, 32'd5, 1); // sw x2, 0(x1) - storing the value 5 (since x2=5) at addr=0+x1
+
+        // test 9
+        @(posedge clk);
+        check_mem_task(32'h0000a183, 32'd5, 32'd5, 0); // lw x3, 0(x1) - loading the value 5 into x3 from addr=0+x1
+
+        // test 10
+        @(posedge clk);
+        check_task(32'h00118213, 32'd6, 5'd4); // addi x4, x3, 1; x4 = x3 + 1 = 5 + 1 = 6
 
         tb_final_display("single_cycle_datapath");
 
