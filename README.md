@@ -13,6 +13,7 @@ A from-scratch RV32I-subset CPU core written in Verilog.
 - 32-bit ALU
 - Branch target and branch-taken logic
 - Self-checking testbenches with VCD waveform output
+- Data memory: load/store
 
 ## Supported Instructions
 ### R-type
@@ -35,6 +36,10 @@ A from-scratch RV32I-subset CPU core written in Verilog.
 - `beq`
 - `bne`
 
+### Memory
+- `lw`
+- `sw`
+
 ## Program Loading
 
 Assembly programs are assembled into machine code, converted into a hex file, and loaded into instruction memory using:
@@ -53,6 +58,7 @@ The project includes testbenches for:
 - Instruction memory
 - Immediate generator
 - Control decoder
+- Data memory
 - Single-cycle datapath
 - CPU core
 
