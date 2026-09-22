@@ -4,7 +4,7 @@ module tb_single_cycle_datapath;
     reg clk = 0, reset = 0;
     wire invalid_instruction, branch_taken;
 
-    integer num_tasks = 0, error_count = 0;
+    integer num_tasks = 0, error_count = 0, i;
 
     always #5 clk = ~clk;
 
@@ -21,10 +21,11 @@ module tb_single_cycle_datapath;
             num_tasks = num_tasks + 1;
             instruction = input_instruction;
 
+            @(posedge clk);
             #1;
 
-            if ((alu_result !== expected_result) || (invalid_instruction !== 0)) begin
-                $display("Error: test = %0d | ALU result = %h (expected = %h), register x%0d value = %h (expected = %h)", num_tasks, alu_result, expected_result, port1, uut.rs1_data, expected_result);
+            if ((uut.rf.x[port1] !== expected_result) || (invalid_instruction !== 0)) begin
+                $display("Error: test = %0d | ALU result = %h (expected = %h), register x%0d value = %h (expected = %h)", num_tasks, alu_result, expected_result, port1, uut.rf.x[port1], expected_result);
                 error_count = error_count + 1;
             end
         end
@@ -41,6 +42,7 @@ module tb_single_cycle_datapath;
             instruction = input_instruction;
             pc = test_pc;
 
+            @(posedge clk);
             #1;
 
             if ((branch_taken !== expected_taken) || (uut.branch_target !== expected_target)) begin
@@ -58,6 +60,7 @@ module tb_single_cycle_datapath;
             num_tasks = num_tasks + 1;
             instruction = input_instruction;
 
+            @(posedge clk);
             #1;
 
             if (store == 0) begin
@@ -88,42 +91,33 @@ module tb_single_cycle_datapath;
         #1;
 
         // test 1
-        check_task({12'd5, 5'd0, 3'b000, 5'd1, 7'b0010011}, 32'd5, 1); // addi x1, x0, 5
+        check_task(32'h00500093, 32'd5, 1); // addi x1, x0, 5
 
         // test 2
-        @(posedge clk);
         check_task({12'd0, 5'd1, 3'b000, 5'd2, 7'b0010011}, 32'd5, 2); // addi x2, x1, 0; if x2 ALU result is 5, then it proves x1 was written correctly in test 1
 
         // test 3
-        @(posedge clk);
         check_task({7'b0000000, 5'd2, 5'd1, 3'b000, 5'd3, 7'b0110011}, 32'd10, 3); // add x3, x1, x2; x3=x1+x2=5+5=10
 
         // test 4
-        @(posedge clk);
         check_task({12'd0, 5'd3, 3'b000, 5'd4, 7'b0010011}, 32'd10, 4); //addi x4, x3, 0
 
         // test 5
-        @(posedge clk);
         check_branch_task({1'b0, 6'b000000, 5'd0, 5'd0, 3'b000, 4'b0010, 1'b0, 7'b1100011}, 32'd4, 1'b1, 32'd8); //beq x0, x0, 4
 
         // test 6
-        @(posedge clk);
         check_branch_task(32'h00208463, 32'h00000008, 1'b1, 32'h00000010); // beq x1, x2, 8
 
         // test 7
-        @(posedge clk);
         check_branch_task(32'h00209463, 32'h00000014, 1'b0, 32'h0000001c); // bne x1, x2, 8
 
         // test 8
-        @(posedge clk);
         check_mem_task(32'h0020a023, 32'd0, 32'd5, 1); // sw x2, 0(x1) - storing the value 5 (since x2=5) at addr=0+x1
 
         // test 9
-        @(posedge clk);
         check_mem_task(32'h0000a183, 32'd5, 32'd5, 0); // lw x3, 0(x1) - loading the value 5 into x3 from addr=0+x1
 
         // test 10
-        @(posedge clk);
         check_task(32'h00118213, 32'd6, 5'd4); // addi x4, x3, 1; x4 = x3 + 1 = 5 + 1 = 6
 
         tb_final_display("single_cycle_datapath");

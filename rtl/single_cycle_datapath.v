@@ -14,15 +14,17 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
     wire mem_read, mem_write, mem_to_reg;
     wire [31:0] datamem_out;
 
-    // the branch is either BEQ/BNE, aka condition; only branch if condition is met
-    assign branch_taken = (branch && (((branch_type == 2'b00) && (rs1_data == rs2_data)) || ((branch_type == 2'b01) && (rs1_data != rs2_data))));
+    wire jal_enable;
+
+    // the branch is either BEQ/BNE or JAL, aka condition; only branch if condition is met
+    assign branch_taken = (branch && (((branch_type == 2'b00) && (rs1_data == rs2_data)) || ((branch_type == 2'b01) && (rs1_data != rs2_data)) || jal_enable));
     assign branch_target = pc + immediate; // if there is a branch, then this will be correct
 
     instruction_field_decoder ifd (.instruction(instruction), .opcode(opcode), .rd(rd), .funct3(funct3), .rs1(rs1), .rs2(rs2), .funct7(funct7));
 
     immediate_generator imm (.instruction(instruction), .immediate(immediate));
 
-    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .branch_type(branch_type), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg));
+    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .branch_type(branch_type), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable));
 
     register_file rf (.clk(clk), .reset(reset), .write_enable(reg_write), .rs1_addr(rs1), .rs2_addr(rs2), .rd_addr(rd), .rd_data(rd_data), .rs1_data(rs1_data), .rs2_data(rs2_data));
 

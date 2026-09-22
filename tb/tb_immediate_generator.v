@@ -38,7 +38,7 @@ module tb_immediate_generator;
             #1;
 
             if (immediate !== expected) begin
-                $display("Error: instruction: %h, opcode = %b | immediate: %h (expected = %h)", instruction, uut.opcode, immediate, expected);
+                $display("Error: instruction: %b, opcode = %b | immediate: %b (expected = %b)", instruction, uut.opcode, immediate, expected);
                 error_count = error_count + 1;
             end
         end
@@ -138,6 +138,9 @@ module tb_immediate_generator;
 
         // lw x2, -2048(x1)
         check_gen_task(32'h8000a103, 32'hfffff800);
+
+        // I converted these two hex from binary, using 0s and 1s to use a valid J-type opcode to test whether the immediate generator would produce the correct immediate; not a real instruction btw, just a valid opcode and random immediate
+        check_gen_task(32'hAAAAA06F, 32'hFFFAA2AA);
 
         // neither B-type nor I-type
         check_gen_task(32'h00000033, 32'h00000000);
