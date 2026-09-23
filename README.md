@@ -14,6 +14,7 @@ A from-scratch RV32I-subset CPU core written in Verilog.
 - Branch target and branch-taken logic
 - Self-checking testbenches with VCD waveform output
 - Data memory: load/store
+- Jump and Link instruction
 
 ## Supported Instructions
 ### R-type
@@ -35,6 +36,9 @@ A from-scratch RV32I-subset CPU core written in Verilog.
 
 - `beq`
 - `bne`
+
+### J-type
+- `jal`
 
 ### Memory
 - `lw`
