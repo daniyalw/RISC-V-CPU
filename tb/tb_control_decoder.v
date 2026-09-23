@@ -4,13 +4,13 @@ module tb_control_decoder;
     reg [6:0] funct7;
     wire [2:0] alu_op;
     wire [1:0] branch_type;
-    wire alu_src, reg_write, invalid_instruction, branch, mem_read, mem_write, mem_to_reg;
+    wire alu_src, reg_write, invalid_instruction, branch, mem_read, mem_write, mem_to_reg, jal_enable;
 
     integer num_tasks = 0, error_count = 0;
 
     `include "tb/tb_final_display.vh"
 
-    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .branch_type(branch_type), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg));
+    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .branch_type(branch_type), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable));
 
     task display_info;
         begin
@@ -74,10 +74,24 @@ module tb_control_decoder;
 
             #1;
 
-            // TODO finish check_invalid task
             if ((alu_op !== 3'b111) || (branch !== 1'b0) || (branch_type !== 2'b00) || (alu_src !== 1'b0) || (reg_write !== 1'b0) || (mem_read !== 1'b0) || (mem_write !== 1'b0) || (mem_to_reg !== 1'b0) || (invalid_instruction !== 1'b1)) begin
                 display_info();
                 $display("alu_op = %b (expected = 111), branch = %b (expected = 0), branch_type = %b (expected = 00), alu_src = %b (expected = 0), reg_write = %b (expected = 0), mem_read = %b (expected = 0), mem_write = %b (expected = 0), mem_to_reg = %b (expected = 0), invalid_instruction = %b (expected = 1)\n\n", alu_op, branch, branch_type, alu_src, reg_write, mem_read, mem_write, mem_to_reg, invalid_instruction);
+            end
+        end
+    endtask
+
+    task check_jal;
+        input expected_regwrite, expected_mem_to_reg, expected_jal_enable;
+
+        begin
+            num_tasks = num_tasks + 1;
+
+            #1;
+
+            if ((reg_write !== expected_regwrite) || (mem_to_reg !== expected_mem_to_reg) || (jal_enable !== expected_jal_enable) || (invalid_instruction !== 1'b0)) begin
+                display_info();
+                $display("reg_write = %b (expected = %b), mem_to_reg = %b (expected=%b), jal_enable = %b (expected = %b), invalid_instruction = %b (expected = %b)", reg_write, expected_regwrite, mem_to_reg, expected_mem_to_reg, jal_enable, expected_jal_enable, invalid_instruction, 1'b0);
             end
         end
     endtask
@@ -140,6 +154,10 @@ module tb_control_decoder;
         // test 13 - LW
         opcode = 7'b0000011; funct3 = 3'b010; funct7 = 7'b000000;
         check_mem_task(1'b1, 1'b0, 1'b1);
+
+        // test 14 - JAL
+        opcode = 7'b1101111; funct3 = 3'b000; funct7 = 7'b000000; // funct3 and funct7 are not needed for JAL
+        check_jal(1'b1, 1'b0, 1'b1);
 
         // invalid cases
         // test 1 - unsuported I-type

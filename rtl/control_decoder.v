@@ -119,7 +119,8 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             end
         end else if (opcode == 7'b1101111) begin
             // J-type
-            branch = 1'b1; // since jal will branch
+            reg_write = 1'b1;
+            mem_to_reg = 1'b0;
             jal_enable = 1'b1;
             invalid_instruction = 1'b0;
         end

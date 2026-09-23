@@ -17,7 +17,7 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
     wire jal_enable;
 
     // the branch is either BEQ/BNE or JAL, aka condition; only branch if condition is met
-    assign branch_taken = (branch && (((branch_type == 2'b00) && (rs1_data == rs2_data)) || ((branch_type == 2'b01) && (rs1_data != rs2_data)) || jal_enable));
+    assign branch_taken = jal_enable || (branch && (((branch_type == 2'b00) && (rs1_data == rs2_data)) || ((branch_type == 2'b01) && (rs1_data != rs2_data))));
     assign branch_target = pc + immediate; // if there is a branch, then this will be correct
 
     instruction_field_decoder ifd (.instruction(instruction), .opcode(opcode), .rd(rd), .funct3(funct3), .rs1(rs1), .rs2(rs2), .funct7(funct7));
@@ -30,7 +30,9 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
 
     alu_32bit alu (.a(rs1_data), .b(alu_src ? immediate : rs2_data), .op(alu_op), .result(alu_result), .zero(alu_zero), .cout(alu_cout));
 
-    assign rd_data = mem_to_reg ? datamem_out : alu_result; // if mem_to_reg == 1, then the output is the data memory at that address (the ALU result is the address), if mem_to_reg == 0, then the output is the ALU operation result
+    assign rd_data = mem_to_reg ? datamem_out :
+                    jal_enable ? (pc + 4) :
+                    alu_result; // if mem_to_reg == 1, then the output is the data memory at that address (the ALU result is the address), if mem_to_reg == 0, then the output is the ALU operation result
 
     // use rs2_data to write value into data memory
     data_memory dm (.clk(clk), .reset(reset), .mem_write(mem_write), .mem_read(mem_read), .address(alu_result), .write_data(rs2_data), .out_data(datamem_out));

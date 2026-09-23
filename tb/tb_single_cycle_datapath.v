@@ -47,6 +47,7 @@ module tb_single_cycle_datapath;
 
             if ((branch_taken !== expected_taken) || (uut.branch_target !== expected_target)) begin
                 $display("Error: test = %0d, instruction = %h, pc = %h | branch_taken = %b (expected = %b), target = %h (expected = %h)", num_tasks, instruction, pc, branch_taken, expected_taken, uut.branch_target, expected_target);
+                $display("instr=%h pc=%h opcode=%b imm=%h branch_target=%h", instruction, pc, instruction[6:0], uut.immediate, uut.branch_target);
                 error_count = error_count + 1;
             end
         end
@@ -119,6 +120,18 @@ module tb_single_cycle_datapath;
 
         // test 10
         check_task(32'h00118213, 32'd6, 5'd4); // addi x4, x3, 1; x4 = x3 + 1 = 5 + 1 = 6
+
+        // test 11
+        check_branch_task(32'h008002ef, 32'd4, 1'b1, 32'd12); // jal x5, +8
+
+        // test 12
+        check_branch_task(32'h00C000EF, 32'd8, 1'b1, 32'd20); // jal x1, 12
+
+        // test 13
+        check_branch_task(32'hFFDFF0EF, 32'd4, 1'b1, 32'd0); // jal x1, -4
+
+        // test 14
+        check_branch_task(32'h0040006F, 32'd12, 1'b1, 32'd16); // jal x0, 4; the equivalent of j 4
 
         tb_final_display("single_cycle_datapath");
 

@@ -43,12 +43,17 @@ module tb_cpu_core;
     task check_task_branch;
         input [31:0] expected_pc;
         input expected_branch_taken;
+        input jal; input [4:0] register; input [31:0] expected_reg_val;
 
         begin
             num_tasks = num_tasks + 1;
 
-            if ((uut.pc !== expected_pc) || (uut.branch_taken !== expected_branch_taken)) begin
+            if ((uut.pc !== expected_pc) || (uut.branch_taken !== expected_branch_taken) || (jal && (uut.scd.rf.x[register] !== expected_reg_val))) begin
                 $display("Error, branch test; test %0d: uut.branch_taken = %b (expected = %b) | pc = %h (expected = %h)", num_tasks, uut.branch_taken, expected_branch_taken, uut.pc, expected_pc);
+                
+                if (jal == 1)
+                    $display("jal = %b, register x[%0d] = %h (expected = %h)", jal, register, uut.scd.rf.x[register], expected_reg_val);
+
                 info_display();
                 error_count = error_count + 1;
             end
@@ -93,23 +98,19 @@ module tb_cpu_core;
 
         // program counter advances by 4 each time (0, 4, 8, ...), the second param in check_task is the ALU result of the operation
         // test 1
-        check_task_ALU(32'd0, 32'd0);
+        check_task_ALU(32'd0, 32'd5);
 
         // test 2
         @(posedge clk); #1;
-        check_task_ALU(32'd4, 32'd42);
+        check_task_branch(32'd4, 1'b1, 1'b1, 5'd5, 32'h8);
 
         // test 3
         @(posedge clk); #1;
-        check_task_datamem(32'd8, 32'd42, 1'b1);
+        check_task_ALU(32'hc, 32'd42);
 
         // test 4
         @(posedge clk); #1;
-        check_task_datamem(32'd12, 32'd42, 1'b0);
-
-        // test 5
-        @(posedge clk); #1;
-        check_task_ALU(32'd16, 32'd43);
+        check_task_ALU(32'h10, 32'd8);
 
         tb_final_display("cpu_core");
 

@@ -1,10 +1,8 @@
-.section .text
-.globl _start
+addi x1, x0, 5
+jal  x5, target
+addi x2, x0, 99      # should be skipped
 
-_start:
-    addi x1, x0, 0      # base address
-    addi x2, x0, 42     # value to store
-    sw   x2, 0(x1)      # memory[0] = 42
-    lw   x3, 0(x1)      # x3 = memory[0]
-    addi x4, x3, 1      # proves x3 became 42
+target:
+    addi x3, x0, 42
+    addi x4, x5, 0       # x4 should become return address
     .word 0x00000000
