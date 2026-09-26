@@ -104,27 +104,27 @@ module tb_cpu_core;
 
         // program counter advances by 4 each time (0, 4, 8, ...), the second param in check_task is the ALU result of the operation
         // test 1
-        check_task_gen(32'd0, 32'h12345000);
+        check_task_gen(32'd0, 32'h00001000);
 
         // test 2
         @(posedge clk); #1;
-        check_task_gen(32'd4, 32'h12345000);
+        check_task_gen(32'd4, 32'h00001004);
 
         // test 3
         @(posedge clk); #1;
-        check_task_gen(32'd8, 32'h00001000);
+        check_task_gen(32'd8, 32'h00002008);
 
         // test 4
         @(posedge clk); #1;
-        check_task_gen(32'd12, 32'h00001005);
+        check_task_gen(32'd12, 32'h00002010);
 
         // test 5
         @(posedge clk); #1;
-        check_task_gen(32'd16, 32'hfffff000);
+        check_task_gen(32'd16, 32'hfffff010);
 
         // test 6
         @(posedge clk); #1;
-        check_task_gen(32'd20, 32'hffffefff);
+        check_task_gen(32'd20, 32'hfffff00f);
 
         tb_final_display("cpu_core");
 

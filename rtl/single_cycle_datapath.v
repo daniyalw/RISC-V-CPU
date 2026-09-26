@@ -15,7 +15,7 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
     wire [31:0] datamem_out;
 
     wire jal_enable, jalr_enable;
-    wire lui_enable;
+    wire lui_enable, auipc_enable;
 
     // the branch is either BEQ/BNE or JAL, aka condition; only branch if condition is met
     assign branch_taken = jal_enable || (branch && (((branch_type == 2'b00) && (rs1_data == rs2_data)) || ((branch_type == 2'b01) && (rs1_data != rs2_data))));
@@ -25,7 +25,7 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
 
     immediate_generator imm (.instruction(instruction), .immediate(immediate));
 
-    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .branch_type(branch_type), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable));
+    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .branch_type(branch_type), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable));
 
     register_file rf (.clk(clk), .reset(reset), .write_enable(reg_write), .rs1_addr(rs1), .rs2_addr(rs2), .rd_addr(rd), .rd_data(rd_data), .rs1_data(rs1_data), .rs2_data(rs2_data));
 
@@ -34,6 +34,7 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
     assign rd_data = mem_to_reg ? datamem_out :
                     jal_enable ? (pc + 4) :
                     lui_enable ? immediate :
+                    auipc_enable ? (immediate + pc) :
                     alu_result; // if mem_to_reg == 1, then the output is the data memory at that address (the ALU result is the address), if mem_to_reg == 0, then the output is the ALU operation result
 
     // use rs2_data to write value into data memory

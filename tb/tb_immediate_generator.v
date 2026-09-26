@@ -148,6 +148,9 @@ module tb_immediate_generator;
         // like previously, random immediate - test for LUI (U-type)
         check_gen_task(32'h123452B7, 32'h12345000);
 
+        // test for auipc (U-type)
+        check_gen_task(32'h10297, 32'h00010000);
+
         // neither B-type nor I-type
         check_gen_task(32'h00000033, 32'h00000000);
 

@@ -33,6 +33,27 @@ module tb_single_cycle_datapath;
         end
     endtask
 
+    task check_auipc;
+        input [31:0] input_instruction, expected_result, test_pc;
+        input [4:0] port1;
+
+        begin
+            num_tasks = num_tasks + 1;
+            instruction = input_instruction;
+            pc = test_pc;
+
+            @(posedge clk);
+            #1;
+
+            if ((uut.rf.x[port1] !== expected_result) || (invalid_instruction !== 0)) begin
+                $display("Error: test=%0d   instruction=%h | uut.rf.x[%0d]=%h (expected=%h)",
+                            num_tasks, instruction,
+                            port1, uut.rf.x[port1], expected_result);
+                error_count = error_count + 1;
+            end
+        end
+    endtask
+
     task check_branch_task;
         input [31:0] input_instruction, test_pc;
         input expected_taken;
@@ -165,6 +186,18 @@ module tb_single_cycle_datapath;
 
         // test 24
         check_task(32'h12345137, 32'h12345000, 32'd2); // lui x2, 0x12345
+
+        // test 25
+        check_auipc(32'h12345097, 32'h12345000, 32'd0, 5'd1); // auipc x1, 0x12345
+
+        // test 26
+        check_auipc(32'h00000117, 32'h00000004, 32'd4, 5'd2); // auipc x2, 0x00000
+
+        // test 27
+        check_auipc(32'h00001197, 32'h00001008, 32'd8, 5'd3); // auipc x3, 0x00001
+
+        // test 28
+        check_auipc(32'hFFFFF217, 32'hFFFFF00C, 32'd12, 5'd4); // auipc x4, 0xFFFFF
 
         tb_final_display("single_cycle_datapath");
 

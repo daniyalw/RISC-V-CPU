@@ -2,13 +2,13 @@
 .globl _start
 
 _start:
-    lui  x1, 0x12345      # x1 = 0x12345000
-    addi x2, x1, 0        # x2 = 0x12345000, proves LUI wrote x1
+    auipc x1, 0x00001     # PC=0x00, x1 = 0x00000000 + 0x00001000 = 0x00001000
+    addi  x2, x1, 4       # x2 = 0x00001004, proves x1 was written
 
-    lui  x3, 0x00001      # x3 = 0x00001000
-    addi x4, x3, 5        # x4 = 0x00001005
+    auipc x3, 0x00002     # PC=0x08, x3 = 0x00000008 + 0x00002000 = 0x00002008
+    addi  x4, x3, 8       # x4 = 0x00002010
 
-    lui  x5, 0xfffff      # x5 = 0xfffff000
-    addi x6, x5, -1       # x6 = 0xffffefff
+    auipc x5, 0xfffff     # PC=0x10, x5 = 0x00000010 + 0xfffff000 = 0xfffff010
+    addi  x6, x5, -1      # x6 = 0xfffff00f
 
     .word 0x00000000
