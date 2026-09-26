@@ -10,7 +10,7 @@ module tb_cpu_core;
 
     task info_display;
         begin
-            $display("pc=%h instr=%h branch_taken=%b branch_target=%h next_pc=%h alu_result=%h invalid=%b mem_read=%b mem_write=%b mem_to_reg=%b datamem_out=%h opcode=%b\n\n",
+            $display("pc=%h instr=%h branch_taken=%b branch_target=%h next_pc=%h alu_result=%h invalid=%b mem_read=%b mem_write=%b mem_to_reg=%b reg_write=%b datamem_out=%h opcode=%b\n\n",
                 uut.pc,
                 uut.instruction,
                 uut.branch_taken,
@@ -21,6 +21,7 @@ module tb_cpu_core;
                 uut.scd.mem_read,
                 uut.scd.mem_write,
                 uut.scd.mem_to_reg,
+                uut.scd.reg_write,
                 uut.scd.datamem_out,
                 uut.instruction[6:0]);
         end
@@ -43,14 +44,14 @@ module tb_cpu_core;
     task check_task_branch;
         input [31:0] expected_pc;
         input expected_branch_taken;
-        input jal; input [4:0] register; input [31:0] expected_reg_val;
+        input jal; input [4:0] register; input [31:0] expected_reg_val, expected_branch_target;
 
         begin
             num_tasks = num_tasks + 1;
 
-            if ((uut.pc !== expected_pc) || (uut.branch_taken !== expected_branch_taken) || (jal && (uut.scd.rf.x[register] !== expected_reg_val))) begin
-                $display("Error, branch test; test %0d: uut.branch_taken = %b (expected = %b) | pc = %h (expected = %h)", num_tasks, uut.branch_taken, expected_branch_taken, uut.pc, expected_pc);
-                
+            if ((uut.pc !== expected_pc) || (uut.branch_taken !== expected_branch_taken) || (uut.branch_target !== expected_branch_target)) begin
+                $display("Error, branch test; test %0d: uut.branch_taken = %b (expected = %b) | pc = %h (expected = %h), branch_target = %h (expected = %h)", num_tasks, uut.branch_taken, expected_branch_taken, uut.pc, expected_pc, uut.branch_target, expected_branch_target);
+
                 if (jal == 1)
                     $display("jal = %b, register x[%0d] = %h (expected = %h)", jal, register, uut.scd.rf.x[register], expected_reg_val);
 
@@ -98,19 +99,19 @@ module tb_cpu_core;
 
         // program counter advances by 4 each time (0, 4, 8, ...), the second param in check_task is the ALU result of the operation
         // test 1
-        check_task_ALU(32'd0, 32'd5);
+        check_task_ALU(32'd0, 32'd17);
 
         // test 2
         @(posedge clk); #1;
-        check_task_branch(32'd4, 1'b1, 1'b1, 5'd5, 32'h8);
-
+        check_task_branch(32'd4, 1'b1, 1'b1, 5'd6, 32'd8, 32'h10);
+        
         // test 3
         @(posedge clk); #1;
-        check_task_ALU(32'hc, 32'd42);
+        check_task_ALU(32'h10, 32'd42);
 
         // test 4
         @(posedge clk); #1;
-        check_task_ALU(32'h10, 32'd8);
+        check_task_ALU(32'h14, 32'd8);
 
         tb_final_display("cpu_core");
 

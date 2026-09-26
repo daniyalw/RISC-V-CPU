@@ -1,6 +1,6 @@
 module tb_single_cycle_datapath;
     reg [31:0] instruction, pc, target;
-    wire [31:0] rs1_data, alu_result, branch_target;
+    wire [31:0] alu_result, branch_target;
     reg clk = 0, reset = 0;
     wire invalid_instruction, branch_taken;
 
@@ -45,10 +45,8 @@ module tb_single_cycle_datapath;
             @(posedge clk);
             #1;
 
-            if ((branch_taken !== expected_taken) || (uut.branch_target !== expected_target)) begin
-                $display("Error: test = %0d, instruction = %h, pc = %h | branch_taken = %b (expected = %b), target = %h (expected = %h)", num_tasks, instruction, pc, branch_taken, expected_taken, uut.branch_target, expected_target);
-                $display("instr=%h pc=%h opcode=%b imm=%h branch_target=%h", instruction, pc, instruction[6:0], uut.immediate, uut.branch_target);
-                error_count = error_count + 1;
+            if ((branch_taken !== expected_taken) || (branch_target !== expected_target)) begin
+                $display("Error: test=%0d   instruction=%h   opcode=%b   pc=%h   immediate=%h   rs1_data=%h | branch_taken=%b (expected=%b)   target=%h (expected=%h)\n", num_tasks, instruction, instruction[6:0], pc, uut.immediate, uut.rs1_data, branch_taken, expected_taken, uut.branch_target, expected_target);
             end
         end
     endtask
@@ -132,6 +130,34 @@ module tb_single_cycle_datapath;
 
         // test 14
         check_branch_task(32'h0040006F, 32'd12, 1'b1, 32'd16); // jal x0, 4; the equivalent of j 4
+
+        // two tests to reset x1 and x2 values
+        // test 15
+        check_task(32'h00400113, 32'd4, 2); // addi x2, x0, 4
+
+        // test 16
+        check_branch_task(32'h000100E7, 32'd48, 1'b1, 32'd4); // jalr x1, x2, 0; target = 0 + x2 = x2 = 4
+
+        // test 17
+        check_branch_task(32'h004100E7, 32'd0, 1'b1, 32'd8); // jalr x1, x2, 4; target = x2 + 4 = 4 + 4 = 8
+
+        // test 18
+        check_branch_task(32'hFFC100E7, 32'd16, 1'b1, 32'd0); // jalr x1, x2, -4; target = x2 - 4 = 4 - 4 = 0
+
+        // test 19
+        check_task(32'h00800093, 32'd8, 1); // addi x1, x0, 8
+
+        // test 20
+        check_branch_task(32'h00008067, 32'd8, 1'b1, 32'd8); // jalr x0, x1, 0; target = x1 + 0 = x1 = 8
+
+        // test 21
+        check_branch_task(32'h004082E7, 32'd52, 1'b1, 32'd12); // jalr x5, x1, 4; target = x1 + 4 = 8 + 4 = 12
+
+        // test 22
+        check_task(32'h00400113, 32'd4, 2); // addi x2, x0, 4
+
+        // test 23
+        check_branch_task(32'hFFC10067, 32'd4, 1'b1, 32'd0); // jalr x0, x2, -4; target = x2 - 4 = 4 - 4 = 0
 
         tb_final_display("single_cycle_datapath");
 

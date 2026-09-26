@@ -5,7 +5,7 @@ module immediate_generator (input [31:0] instruction, output reg [31:0] immediat
         opcode = instruction[6:0];
 
         // the regular I-type and LW both have the same immediate format, so we just use that even though they have different opcodes
-        if ((opcode == 7'b0010011) || (opcode == 7'b0000011)) // I-type (including lw)
+        if ((opcode == 7'b0010011) || (opcode == 7'b0000011) || (opcode == 7'b1100111)) // I-type (including lw and jalr)
             immediate = {{20{instruction[31]}}, instruction[31:20]};
         else if (opcode == 7'b1100011) // B-type
             immediate = {{19{instruction[31]}}, instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0};
