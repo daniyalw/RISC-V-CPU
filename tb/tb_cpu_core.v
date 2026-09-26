@@ -27,14 +27,19 @@ module tb_cpu_core;
         end
     endtask
 
-    task check_task_ALU;
-        input [31:0] expected_pc, expected_alu_result;
+    // this is more general than the previous ALU check task
+    task check_task_gen;
+        input [31:0] expected_pc, expected_rd_data;
 
         begin
             num_tasks = num_tasks + 1;
 
-            if ((uut.pc !== expected_pc) || (uut.alu_result !== expected_alu_result)) begin
-                $display("Error, ALU test; test %0d: pc=%h (expected = %h) | instruction=%h | alu_result=%h (expected = %h) | invalid=%b", num_tasks, uut.pc, expected_pc, uut.instruction, uut.alu_result, expected_alu_result, uut.invalid_instruction);
+            if ((uut.pc !== expected_pc) || (uut.scd.rd_data !== expected_rd_data) || (uut.invalid_instruction !== 1'b0)) begin
+                $display("Error: test=%0d   instruction=%h | pc=%h (expected=%h)   rd_data=%h (expected=%h)   invalid=%h (expected=%h)",
+                            num_tasks, uut.instruction,
+                            uut.pc, expected_pc,
+                            uut.scd.rd_data, expected_rd_data,
+                            uut.invalid_instruction, 1'b0);
                 info_display();
                 error_count = error_count + 1;
             end
@@ -99,19 +104,27 @@ module tb_cpu_core;
 
         // program counter advances by 4 each time (0, 4, 8, ...), the second param in check_task is the ALU result of the operation
         // test 1
-        check_task_ALU(32'd0, 32'd17);
+        check_task_gen(32'd0, 32'h12345000);
 
         // test 2
         @(posedge clk); #1;
-        check_task_branch(32'd4, 1'b1, 1'b1, 5'd6, 32'd8, 32'h10);
-        
+        check_task_gen(32'd4, 32'h12345000);
+
         // test 3
         @(posedge clk); #1;
-        check_task_ALU(32'h10, 32'd42);
+        check_task_gen(32'd8, 32'h00001000);
 
         // test 4
         @(posedge clk); #1;
-        check_task_ALU(32'h14, 32'd8);
+        check_task_gen(32'd12, 32'h00001005);
+
+        // test 5
+        @(posedge clk); #1;
+        check_task_gen(32'd16, 32'hfffff000);
+
+        // test 6
+        @(posedge clk); #1;
+        check_task_gen(32'd20, 32'hffffefff);
 
         tb_final_display("cpu_core");
 

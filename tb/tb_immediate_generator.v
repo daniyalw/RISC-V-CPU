@@ -145,6 +145,9 @@ module tb_immediate_generator;
         // I converted these two hex from binary, using 0s and 1s to use a valid I-type JALR opcode to test whether the immediate generator would produce the correct immediate; not a real instruction btw, just a valid opcode and random immediate
         check_gen_task(32'hAAAAAAE7, 32'hFFFFFAAA);
 
+        // like previously, random immediate - test for LUI (U-type)
+        check_gen_task(32'h123452B7, 32'h12345000);
+
         // neither B-type nor I-type
         check_gen_task(32'h00000033, 32'h00000000);
 

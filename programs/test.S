@@ -2,14 +2,13 @@
 .globl _start
 
 _start:
-    addi x5, x0, 17      # x5 = 17; JALR should clear bit 0, so target becomes 16
-    jalr x6, 0(x5)       # x6 = PC + 4 = 8, PC = (17 + 0) & ~1 = 16
+    lui  x1, 0x12345      # x1 = 0x12345000
+    addi x2, x1, 0        # x2 = 0x12345000, proves LUI wrote x1
 
-    addi x1, x0, 99      # should be skipped
-    addi x1, x0, 88      # should also be skipped
+    lui  x3, 0x00001      # x3 = 0x00001000
+    addi x4, x3, 5        # x4 = 0x00001005
 
-target:
-    addi x2, x0, 42      # should execute
-    addi x3, x6, 0       # x3 = 8, proves JALR wrote return address to x6
+    lui  x5, 0xfffff      # x5 = 0xfffff000
+    addi x6, x5, -1       # x6 = 0xffffefff
 
     .word 0x00000000

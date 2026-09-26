@@ -4,13 +4,13 @@ module tb_control_decoder;
     reg [6:0] funct7;
     wire [2:0] alu_op;
     wire [1:0] branch_type;
-    wire alu_src, reg_write, invalid_instruction, branch, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable;
+    wire alu_src, reg_write, invalid_instruction, branch, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable;
 
     integer num_tasks = 0, error_count = 0;
 
     `include "tb/tb_final_display.vh"
 
-    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .branch_type(branch_type), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable));
+    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .branch_type(branch_type), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable));
 
     task display_info;
         begin
@@ -32,6 +32,25 @@ module tb_control_decoder;
             if ((alu_op !== expected_op) || (alu_src !== expected_src) || (reg_write !== expected_regwrite) || (invalid_instruction !== 1'b0)) begin
                 display_info();
                 $display("alu_op = %b (expected = %b), alu_src = %b (expected = %b), reg_write = %b (expected = %b), invalid_instruction = %b (expected = 0)\n\n", alu_op, expected_op, alu_src, expected_src, reg_write, expected_regwrite, invalid_instruction);
+            end
+        end
+    endtask
+
+    // for LUI tests
+    task check_lui_task;
+        input expected_regwrite, expected_lui_enable;
+
+        begin
+            num_tasks = num_tasks + 1;
+
+            #1;
+
+            if ((reg_write !== expected_regwrite) || (lui_enable !== expected_lui_enable) || (invalid_instruction !== 1'b0)) begin
+                display_info();
+                $display("reg_write=%b (expected=%b)   lui_enable=%b (expected=%b)   invalid_instruction=%b (expected=%b)",
+                            reg_write, expected_regwrite,
+                            lui_enable, expected_lui_enable,
+                            invalid_instruction, 1'b0);
             end
         end
     endtask
@@ -162,6 +181,10 @@ module tb_control_decoder;
         // test 15 - JALR
         opcode = 7'b1100111; funct3 = 3'b000; funct7 = 7'b000000;
         check_jal(1'b1, 1'b0, 1'b1, 1'b1);
+
+        // test 16 - LUI
+        opcode = 7'b0110111; funct3 = 3'b000; funct7 = 7'b000000;
+        check_lui_task(1'b1, 1'b1);
 
         // invalid cases
         // test 1 - unsuported I-type
