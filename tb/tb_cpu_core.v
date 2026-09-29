@@ -104,27 +104,27 @@ module tb_cpu_core;
 
         // program counter advances by 4 each time (0, 4, 8, ...), the second param in check_task is the ALU result of the operation
         // test 1
-        check_task_gen(32'd0, 32'h00001000);
+        check_task_gen(32'd0, 32'hfffffffb);
 
         // test 2
         @(posedge clk); #1;
-        check_task_gen(32'd4, 32'h00001004);
+        check_task_gen(32'd4, 32'd3);
 
         // test 3
         @(posedge clk); #1;
-        check_task_gen(32'd8, 32'h00002008);
+        check_task_branch(32'd8, 1'b1, 1'b0, 5'b0, 32'd0, 32'd16);
 
         // test 4
         @(posedge clk); #1;
-        check_task_gen(32'd12, 32'h00002010);
+        check_task_gen(32'd16, 32'd42);
 
         // test 5
         @(posedge clk); #1;
-        check_task_gen(32'd16, 32'hfffff010);
+        check_task_branch(32'h14, 1'b0, 1'b0, 5'b0, 32'h0, 32'h1c); // branch_target doesn't change based on whether or not branch_taken =1, so branch_target is always the branch target that would have been if branch_target=1, even if branch_target is 0
 
         // test 6
         @(posedge clk); #1;
-        check_task_gen(32'd20, 32'hfffff00f);
+        check_task_gen(32'h18, 32'd7);
 
         tb_final_display("cpu_core");
 

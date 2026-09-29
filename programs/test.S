@@ -2,13 +2,17 @@
 .globl _start
 
 _start:
-    auipc x1, 0x00001     # PC=0x00, x1 = 0x00000000 + 0x00001000 = 0x00001000
-    addi  x2, x1, 4       # x2 = 0x00001004, proves x1 was written
+    addi x1, x0, -5      # x1 = -5
+    addi x2, x0, 3       # x2 = 3
 
-    auipc x3, 0x00002     # PC=0x08, x3 = 0x00000008 + 0x00002000 = 0x00002008
-    addi  x4, x3, 8       # x4 = 0x00002010
+    blt  x1, x2, less    # should branch because -5 < 3
+    addi x3, x0, 99      # should be skipped
 
-    auipc x5, 0xfffff     # PC=0x10, x5 = 0x00000010 + 0xfffff000 = 0xfffff010
-    addi  x6, x5, -1      # x6 = 0xfffff00f
+less:
+    addi x3, x0, 42      # should execute
 
+    blt  x2, x1, wrong   # should NOT branch because 3 < -5 is false
+    addi x4, x0, 7       # should execute
+
+wrong:
     .word 0x00000000

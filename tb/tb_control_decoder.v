@@ -191,6 +191,10 @@ module tb_control_decoder;
         opcode = 7'b0010111; funct3 = 3'b000; funct7 = 7'b000000;
         check_utype_task(1'b1, 1'b0, 1'b1);
 
+        // test 18 - blt
+        opcode = 7'b1100011; funct3 = 3'b100; funct7 = 7'b000000;
+        check_branch_task(1'b1, 2'b10);
+
         // invalid cases
         // test 1 - unsuported I-type
         opcode = 7'b0010011; funct3 = 3'b001; funct7 = 7'b0000000;
@@ -209,7 +213,7 @@ module tb_control_decoder;
         check_invalid();
 
         // test 5 - branch opcode but not valid funct3
-        opcode = 7'b1100011; funct3 = 3'b100; funct7 = 7'b0000000;
+        opcode = 7'b1100011; funct3 = 3'b101; funct7 = 7'b0000000; 
         check_invalid();
 
         tb_final_display("control_decoder");

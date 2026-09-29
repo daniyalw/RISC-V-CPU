@@ -72,6 +72,7 @@ module tb_single_cycle_datapath;
             // also check that the register has actually written the return address (pc+4) for JAL/JALR instructions
             if ((branch_taken !== expected_taken) || (branch_target !== expected_target) || (uut.jal_enable && (port1 !== 0) && (uut.rf.x[port1] !== (pc + 4)))) begin
                 $display("Error: test=%0d   instruction=%h   opcode=%b   pc=%h   immediate=%h   rs1_data=%h | branch_taken=%b (expected=%b)   target=%h (expected=%h)\n", num_tasks, instruction, instruction[6:0], pc, uut.immediate, uut.rs1_data, branch_taken, expected_taken, uut.branch_target, expected_target);
+                error_count = error_count + 1;
             end
         end
     endtask
@@ -198,6 +199,27 @@ module tb_single_cycle_datapath;
 
         // test 28
         check_auipc(32'hFFFFF217, 32'hFFFFF00C, 32'd12, 5'd4); // auipc x4, 0xFFFFF
+
+        // test 29
+        check_task(32'h00800293, 32'd8, 5); // addi x5, x0, 8
+
+        // test 30
+        check_task(32'h00600193, 32'd6, 3); // addi x3, x0, 6
+
+        // test 31
+        check_branch_task(32'h0051C463, 32'd4, 1'b1, 32'd12, 32'd0); // blt x3, x5, 8
+
+        // test 32
+        check_task(32'h00500293, 32'd5, 5); // addi x5, x0, 5
+
+        // test 33
+        check_branch_task(32'h0051C463, 32'd4, 1'b0, 32'd12, 32'd0); // blt x3, x5, 8
+
+        // test 34
+        check_task(32'h00800293, 32'd8, 5); // addi x5, x0, 8
+
+        // test 35
+        check_branch_task(32'hFE51CEE3, 32'd4, 1'b1, 32'd0, 32'd0); // blt x3, x5, -4
 
         tb_final_display("single_cycle_datapath");
 

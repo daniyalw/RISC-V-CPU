@@ -151,6 +151,9 @@ module tb_immediate_generator;
         // test for auipc (U-type)
         check_gen_task(32'h10297, 32'h00010000);
 
+        // test for BLT (B-type)
+        check_gen_task(32'h0051C263, 32'h00000004);
+
         // neither B-type nor I-type
         check_gen_task(32'h00000033, 32'h00000000);
 

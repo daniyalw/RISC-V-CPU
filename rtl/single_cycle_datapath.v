@@ -18,7 +18,13 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
     wire lui_enable, auipc_enable;
 
     // the branch is either BEQ/BNE or JAL, aka condition; only branch if condition is met
-    assign branch_taken = jal_enable || (branch && (((branch_type == 2'b00) && (rs1_data == rs2_data)) || ((branch_type == 2'b01) && (rs1_data != rs2_data))));
+    assign branch_taken = jal_enable ||
+    (branch && (
+        ((branch_type == 2'b00) && (rs1_data == rs2_data)) || // BEQ
+        ((branch_type == 2'b01) && (rs1_data != rs2_data)) || // BNE
+        ((branch_type == 2'b10) && ($signed(rs1_data) < $signed(rs2_data))) // BLT
+    ));
+
     assign branch_target = jalr_enable ? ((rs1_data + immediate) & ~1) : (pc + immediate); // if there is a branch, then this will be correct
 
     instruction_field_decoder ifd (.instruction(instruction), .opcode(opcode), .rd(rd), .funct3(funct3), .rs1(rs1), .rs2(rs2), .funct7(funct7));
