@@ -21,7 +21,8 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
     (branch && (
         ((funct3 == 3'b000) && (rs1_data == rs2_data)) || // BEQ
         ((funct3 == 3'b001) && (rs1_data != rs2_data)) || // BNE
-        ((funct3 == 3'b100) && ($signed(rs1_data) < $signed(rs2_data))) // BLT
+        ((funct3 == 3'b100) && ($signed(rs1_data) < $signed(rs2_data))) || // BLT
+        ((funct3 == 3'b110) && ($unsigned(rs1_data) < $unsigned(rs2_data))) // BLTU
     ));
 
     assign branch_target = jalr_enable ? ((rs1_data + immediate) & ~1) : (pc + immediate); // if there is a branch, then this will be correct

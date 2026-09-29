@@ -221,6 +221,9 @@ module tb_single_cycle_datapath;
         // test 35
         check_branch_task(32'hFE51CEE3, 32'd4, 1'b1, 32'd0, 32'd0); // blt x3, x5, -4
 
+        // test 36
+        check_branch_task(32'hFE51EEE3, 32'd4, 1'b1, 32'd0, 32'd0); // bltu x3, x5, -4
+
         tb_final_display("single_cycle_datapath");
 
         $finish;
