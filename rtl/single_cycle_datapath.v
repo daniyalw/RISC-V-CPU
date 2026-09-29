@@ -9,7 +9,6 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
     wire alu_zero;
     wire [4:0] rd, rs1, rs2;
     wire branch;
-    wire [1:0] branch_type;
 
     wire mem_read, mem_write, mem_to_reg;
     wire [31:0] datamem_out;
@@ -20,9 +19,9 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
     // the branch is either BEQ/BNE or JAL, aka condition; only branch if condition is met
     assign branch_taken = jal_enable ||
     (branch && (
-        ((branch_type == 2'b00) && (rs1_data == rs2_data)) || // BEQ
-        ((branch_type == 2'b01) && (rs1_data != rs2_data)) || // BNE
-        ((branch_type == 2'b10) && ($signed(rs1_data) < $signed(rs2_data))) // BLT
+        ((funct3 == 3'b000) && (rs1_data == rs2_data)) || // BEQ
+        ((funct3 == 3'b001) && (rs1_data != rs2_data)) || // BNE
+        ((funct3 == 3'b100) && ($signed(rs1_data) < $signed(rs2_data))) // BLT
     ));
 
     assign branch_target = jalr_enable ? ((rs1_data + immediate) & ~1) : (pc + immediate); // if there is a branch, then this will be correct
@@ -31,7 +30,7 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
 
     immediate_generator imm (.instruction(instruction), .immediate(immediate));
 
-    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .branch_type(branch_type), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable));
+    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable));
 
     register_file rf (.clk(clk), .reset(reset), .write_enable(reg_write), .rs1_addr(rs1), .rs2_addr(rs2), .rd_addr(rd), .rd_data(rd_data), .rs1_data(rs1_data), .rs2_data(rs2_data));
 

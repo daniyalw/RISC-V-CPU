@@ -154,6 +154,9 @@ module tb_immediate_generator;
         // test for BLT (B-type)
         check_gen_task(32'h0051C263, 32'h00000004);
 
+        // test for BLTU (B-type)
+        check_gen_task(32'h0051E263, 32'd4);
+
         // neither B-type nor I-type
         check_gen_task(32'h00000033, 32'h00000000);
 

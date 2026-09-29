@@ -1,4 +1,4 @@
-module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg branch, output reg [1:0] branch_type, output reg alu_src, reg_write, invalid_instruction, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable, auipc_enable); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
+module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg branch, output reg alu_src, reg_write, invalid_instruction, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable, auipc_enable); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
     always @ (*) begin
         // safe defaults
         alu_op = 3'b111; // 3'b000 is the adder opcode, so using the unused 3'b111 as invalid opcode makes it easy for the ALU to notice that
@@ -7,7 +7,6 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
         invalid_instruction = 1'b1;
 
         branch = 1'b0;
-        branch_type = 2'b00;
 
         mem_read = 1'b0;
         mem_write = 1'b0;
@@ -106,17 +105,14 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             if (funct3 == 3'b000) begin
                 // BEQ - branch if equal
                 branch = 1'b1;
-                branch_type = 2'b00;
                 invalid_instruction = 1'b0;
             end else if (funct3 == 3'b001) begin
                 // BNE - branch if not equal
                 branch = 1'b1;
-                branch_type = 2'b01;
                 invalid_instruction = 1'b0;
             end else if (funct3 == 3'b100) begin
                 // BLT - signed comparison, branch if rs1 < rs2
                 branch = 1'b1;
-                branch_type = 2'b10;
                 invalid_instruction = 1'b0;
             end else begin
             // all invalid funct3 end up here, default values (invalid) prevail

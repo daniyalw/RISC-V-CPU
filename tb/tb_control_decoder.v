@@ -3,14 +3,13 @@ module tb_control_decoder;
     reg [2:0] funct3;
     reg [6:0] funct7;
     wire [2:0] alu_op;
-    wire [1:0] branch_type;
     wire alu_src, reg_write, invalid_instruction, branch, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable, auipc_enable;
 
     integer num_tasks = 0, error_count = 0;
 
     `include "tb/tb_final_display.vh"
 
-    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .branch_type(branch_type), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable));
+    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable));
 
     task display_info;
         begin
@@ -59,16 +58,17 @@ module tb_control_decoder;
     // for branching tests
     task check_branch_task;
         input expected_branch;
-        input [1:0] expected_branch_type;
+        input [2:0] expected_branch_type;
 
         begin
             num_tasks = num_tasks + 1;
 
             #1;
 
-            if ((branch !== expected_branch) || (branch_type !== expected_branch_type) || (invalid_instruction !== 1'b0)) begin
+            // for branching, since there are 6 branch types, we can use 3-bit funct3 instead of a whole new 2- or 3-bit branch_type register
+            if ((branch !== expected_branch) || (funct3 !== expected_branch_type) || (invalid_instruction !== 1'b0)) begin
                 display_info();
-                $display("branch = %b (expected = %b), branch_type = %b (expected = %b), invalid_instruction = %b (expected = 0)\n\n", branch, expected_branch, branch_type, expected_branch_type, invalid_instruction);
+                $display("branch = %b (expected = %b), branch_type/funct3 = %b (expected = %b), invalid_instruction = %b (expected = 0)\n\n", branch, expected_branch, funct3, expected_branch_type, invalid_instruction);
             end
         end
     endtask
@@ -94,9 +94,9 @@ module tb_control_decoder;
 
             #1;
 
-            if ((alu_op !== 3'b111) || (branch !== 1'b0) || (branch_type !== 2'b00) || (alu_src !== 1'b0) || (reg_write !== 1'b0) || (mem_read !== 1'b0) || (mem_write !== 1'b0) || (mem_to_reg !== 1'b0) || (invalid_instruction !== 1'b1)) begin
+            if ((alu_op !== 3'b111) || (branch !== 1'b0) || ((branch == 1'b1) && ((funct3 !== 3'b111) || (funct3 !== 3'b110))) || (alu_src !== 1'b0) || (reg_write !== 1'b0) || (mem_read !== 1'b0) || (mem_write !== 1'b0) || (mem_to_reg !== 1'b0) || (invalid_instruction !== 1'b1)) begin
                 display_info();
-                $display("alu_op = %b (expected = 111), branch = %b (expected = 0), branch_type = %b (expected = 00), alu_src = %b (expected = 0), reg_write = %b (expected = 0), mem_read = %b (expected = 0), mem_write = %b (expected = 0), mem_to_reg = %b (expected = 0), invalid_instruction = %b (expected = 1)\n\n", alu_op, branch, branch_type, alu_src, reg_write, mem_read, mem_write, mem_to_reg, invalid_instruction);
+                $display("alu_op = %b (expected = 111), branch = %b (expected = 0), funct3 = %b (expected = 00), alu_src = %b (expected = 0), reg_write = %b (expected = 0), mem_read = %b (expected = 0), mem_write = %b (expected = 0), mem_to_reg = %b (expected = 0), invalid_instruction = %b (expected = 1)\n\n", alu_op, branch, funct3, alu_src, reg_write, mem_read, mem_write, mem_to_reg, invalid_instruction);
             end
         end
     endtask
@@ -161,11 +161,11 @@ module tb_control_decoder;
 
         // test 10 - BEQ
         opcode = 7'b1100011; funct3 = 3'b000; funct7 = 7'b0000000;
-        check_branch_task(1'b1, 2'b00);
+        check_branch_task(1'b1, 3'b000);
 
         // test 11 - BNE
         opcode = 7'b1100011; funct3 = 3'b001; funct7 = 7'b0000000;
-        check_branch_task(1'b1, 2'b01);
+        check_branch_task(1'b1, 3'b001);
 
         // test 12 - SW
         opcode = 7'b0100011; funct3 = 3'b010; funct7 = 7'b000000;
@@ -193,7 +193,7 @@ module tb_control_decoder;
 
         // test 18 - blt
         opcode = 7'b1100011; funct3 = 3'b100; funct7 = 7'b000000;
-        check_branch_task(1'b1, 2'b10);
+        check_branch_task(1'b1, 3'b100);
 
         // invalid cases
         // test 1 - unsuported I-type
@@ -213,7 +213,7 @@ module tb_control_decoder;
         check_invalid();
 
         // test 5 - branch opcode but not valid funct3
-        opcode = 7'b1100011; funct3 = 3'b101; funct7 = 7'b0000000; 
+        opcode = 7'b1100011; funct3 = 3'b111; funct7 = 7'b0000000;
         check_invalid();
 
         tb_final_display("control_decoder");
