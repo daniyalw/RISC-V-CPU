@@ -27,6 +27,9 @@ test_hex: $(PROGRAM_DIR) $(TOOLS_DIR)
 	$(RISCVELF)-objcopy -O binary build/test.elf build/test.bin
 	python $(TOOLS_DIR)/bin_to_hex.py test.bin test.hex
 
+test_objdump: $(PROGRAM_DIR) $(TOOLS_DIR)
+	$(RISCVELF)-objdump -d build/test.elf
+
 ##############################################
 # individual simulation targets
 ##############################################

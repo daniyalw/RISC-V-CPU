@@ -157,6 +157,12 @@ module tb_immediate_generator;
         // test for BLTU (B-type)
         check_gen_task(32'h0051E263, 32'd4);
 
+        // test for BGE (B-type)
+        check_gen_task(32'h00305263, 32'd4); // bge x3, x5, -4
+
+        // test for BGEU (B-type)
+        check_gen_task(32'hFE51FEE3, -32'd4); // bgeu x3, x5, -4
+
         // neither B-type nor I-type
         check_gen_task(32'h00000033, 32'h00000000);
 

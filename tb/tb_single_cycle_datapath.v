@@ -207,22 +207,37 @@ module tb_single_cycle_datapath;
         check_task(32'h00600193, 32'd6, 3); // addi x3, x0, 6
 
         // test 31
-        check_branch_task(32'h0051C463, 32'd4, 1'b1, 32'd12, 32'd0); // blt x3, x5, 8
+        check_branch_task(32'h0051C463, 32'd4, 1'b1, 32'd12, 5'd0); // blt x3, x5, 8
 
         // test 32
         check_task(32'h00500293, 32'd5, 5); // addi x5, x0, 5
 
         // test 33
-        check_branch_task(32'h0051C463, 32'd4, 1'b0, 32'd12, 32'd0); // blt x3, x5, 8
+        check_branch_task(32'h0051C463, 32'd4, 1'b0, 32'd12, 5'd0); // blt x3, x5, 8
 
         // test 34
         check_task(32'h00800293, 32'd8, 5); // addi x5, x0, 8
 
         // test 35
-        check_branch_task(32'hFE51CEE3, 32'd4, 1'b1, 32'd0, 32'd0); // blt x3, x5, -4
+        check_branch_task(32'hFE51CEE3, 32'd4, 1'b1, 32'd0, 5'd0); // blt x3, x5, -4
 
         // test 36
-        check_branch_task(32'hFE51EEE3, 32'd4, 1'b1, 32'd0, 32'd0); // bltu x3, x5, -4
+        check_branch_task(32'hFE51EEE3, 32'd8, 1'b1, 32'd4, 5'd0); // bltu x3, x5, -4
+
+        // test 37
+        check_task(32'h00500293, 32'd5, 5); // addi x5, x0, 5
+
+        // test 38
+        check_branch_task(32'hFE51DEE3, 32'd4, 1'b1, 32'd0, 5'd0); // bge x3, x5, -4
+
+        // test 39
+        check_branch_task(32'h00305263, 32'd12, 1'b0, 32'd16, 5'd0); // bge x0, x3, 4
+
+        // test 40
+        check_branch_task(32'hFE51FEE3, 32'd16, 1'b1, 32'd12, 5'd0); // bgeu x3, x5, -4
+
+        // test 41 (even though this won't branch, the expected branch target must still be as if it is going to branch, therefore 80 + 16 = 96)
+        check_branch_task(32'h00507863, 32'd80, 1'b0, 32'd96, 5'd0); // bgeu x0, x5, 16
 
         tb_final_display("single_cycle_datapath");
 

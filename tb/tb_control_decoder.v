@@ -94,7 +94,7 @@ module tb_control_decoder;
 
             #1;
 
-            if ((alu_op !== 3'b111) || (branch !== 1'b0) || ((branch == 1'b1) && ((funct3 !== 3'b010) || (funct3 !== 3'b01))) || (alu_src !== 1'b0) || (reg_write !== 1'b0) || (mem_read !== 1'b0) || (mem_write !== 1'b0) || (mem_to_reg !== 1'b0) || (invalid_instruction !== 1'b1)) begin
+            if ((alu_op !== 3'b111) || (branch !== 1'b0) || ((branch == 1'b1) && ((funct3 !== 3'b010) || (funct3 !== 3'b011))) || (alu_src !== 1'b0) || (reg_write !== 1'b0) || (mem_read !== 1'b0) || (mem_write !== 1'b0) || (mem_to_reg !== 1'b0) || (invalid_instruction !== 1'b1)) begin
                 display_info();
                 $display("alu_op = %b (expected = 111), branch = %b (expected = 0), funct3 = %b (expected = 00), alu_src = %b (expected = 0), reg_write = %b (expected = 0), mem_read = %b (expected = 0), mem_write = %b (expected = 0), mem_to_reg = %b (expected = 0), invalid_instruction = %b (expected = 1)\n\n", alu_op, branch, funct3, alu_src, reg_write, mem_read, mem_write, mem_to_reg, invalid_instruction);
             end
@@ -198,6 +198,14 @@ module tb_control_decoder;
         // test 19 - bltu
         opcode = 7'b1100011; funct3 = 3'b110; funct7 = 7'b000000;
         check_branch_task(1'b1, 3'b110);
+
+        // test 20 - bge
+        opcode = 7'b1100011; funct3 = 3'b101; funct7 = 7'b000000;
+        check_branch_task(1'b1, 3'b101);
+
+        // test 21 - bgeu
+        opcode = 7'b1100011; funct3 = 3'b111; funct7 = 7'b000000;
+        check_branch_task(1'b1, 3'b111);
 
         // invalid cases
         // test 1 - unsuported I-type

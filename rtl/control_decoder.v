@@ -118,6 +118,14 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
                 // BLTU - unsigned comparison, branch if rs1 < rs2
                 branch = 1'b1;
                 invalid_instruction = 1'b0;
+            end else if (funct3 == 3'b101) begin
+                // BGE - signed compraison, branch if rs1 >= rs2
+                branch = 1'b1;
+                invalid_instruction = 1'b0;
+            end else if (funct3 == 3'b111) begin
+                // BGEU - unsigned comparison, branch if rs1 >= rs2
+                branch = 1'b1;
+                invalid_instruction = 1'b0;
             end else begin
             // all invalid funct3 end up here, default values (invalid) prevail
             end
