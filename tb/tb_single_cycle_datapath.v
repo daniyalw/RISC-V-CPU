@@ -239,6 +239,12 @@ module tb_single_cycle_datapath;
         // test 41 (even though this won't branch, the expected branch target must still be as if it is going to branch, therefore 80 + 16 = 96)
         check_branch_task(32'h00507863, 32'd80, 1'b0, 32'd96, 5'd0); // bgeu x0, x5, 16
 
+        // test 42
+        check_task(32'h0051A0B3, 0, 1); // slt x1, x3, x5
+
+        // test 43
+        check_task(32'h0032A0B3, 1, 1); // slt x1, x5, x3
+
         tb_final_display("single_cycle_datapath");
 
         $finish;

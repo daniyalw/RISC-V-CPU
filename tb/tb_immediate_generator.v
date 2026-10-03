@@ -163,6 +163,9 @@ module tb_immediate_generator;
         // test for BGEU (B-type)
         check_gen_task(32'hFE51FEE3, -32'd4); // bgeu x3, x5, -4
 
+        // test for SLT (R-type, so no immediate)
+        check_gen_task(32'h0051A133, 32'd0);
+
         // neither B-type nor I-type
         check_gen_task(32'h00000033, 32'h00000000);
 

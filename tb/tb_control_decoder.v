@@ -2,14 +2,14 @@ module tb_control_decoder;
     reg [6:0] opcode;
     reg [2:0] funct3;
     reg [6:0] funct7;
-    wire [2:0] alu_op;
+    wire [2:0] alu_op, slt_enable;
     wire alu_src, reg_write, invalid_instruction, branch, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable, auipc_enable;
 
     integer num_tasks = 0, error_count = 0;
 
     `include "tb/tb_final_display.vh"
 
-    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable));
+    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable), .slt_enable(slt_enable));
 
     task display_info;
         begin
@@ -116,6 +116,21 @@ module tb_control_decoder;
         end
     endtask
 
+    task check_slt;
+        input [2:0] expected_slt_enable;
+
+        begin
+            num_tasks = num_tasks + 1;
+
+            #1;
+
+            if ((slt_enable !== expected_slt_enable) || (invalid_instruction !== 1'b0)) begin
+                display_info();
+                $display("slt_enable = %b (expected = %b)", slt_enable, expected_slt_enable);
+            end
+        end
+    endtask
+
     initial begin
         $dumpfile("waves/control_decoder.vcd");
         $dumpvars(0, tb_control_decoder);
@@ -206,6 +221,10 @@ module tb_control_decoder;
         // test 21 - bgeu
         opcode = 7'b1100011; funct3 = 3'b111; funct7 = 7'b000000;
         check_branch_task(1'b1, 3'b111);
+
+        // test 22 - slt
+        opcode = 7'b0110011; funct3 = 3'b010; funct7 = 7'b0000000;
+        check_slt(3'b001);
 
         // invalid cases
         // test 1 - unsuported I-type

@@ -1,4 +1,4 @@
-module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg branch, output reg alu_src, reg_write, invalid_instruction, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable, auipc_enable); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
+module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg branch, output reg alu_src, reg_write, invalid_instruction, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable, auipc_enable, output reg [2:0] slt_enable); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
     always @ (*) begin
         // safe defaults
         alu_op = 3'b111; // 3'b000 is the adder opcode, so using the unused 3'b111 as invalid opcode makes it easy for the ALU to notice that
@@ -17,6 +17,8 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
 
         lui_enable = 1'b0;
         auipc_enable = 1'b0;
+
+        slt_enable = 3'b000;
 
         if (opcode == 7'b0110011) begin
             // R-type
@@ -45,6 +47,9 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             end else if ((funct3 == 3'b100) && (funct7 == 7'b0000000)) begin
                 // XOR
                 alu_op = 3'b100;
+            end else if ((funct3 == 3'b010) && (funct7 == 7'b0000000)) begin
+                // SLT
+                slt_enable = 3'b001; // bit 0 (1) denotes the enable, bit 1 (0) denotes whether or not it's SLT or SLTI [SLT = 0, SLTI = 1], bit 2 (0) denotes whether or not it's unsigned (signed = 0, unsigned = 1)
             end else begin
                 // invalid
                 invalid_instruction = 1'b1;
