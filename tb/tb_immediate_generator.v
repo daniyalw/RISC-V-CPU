@@ -166,6 +166,15 @@ module tb_immediate_generator;
         // test for SLT (R-type, so no immediate)
         check_gen_task(32'h0051A133, 32'd0);
 
+        // test for SLTU (R-type, no immediate)
+        check_gen_task(32'h0051B0B3, 32'd0);
+
+        // test for SLTI (I-type)
+        check_gen_task(32'h0051A093, 32'd5);
+
+        // test for SLTIU (I-type)
+        check_gen_task(32'h0051B093, 32'd5);
+
         // neither B-type nor I-type
         check_gen_task(32'h00000033, 32'h00000000);
 

@@ -239,11 +239,62 @@ module tb_single_cycle_datapath;
         // test 41 (even though this won't branch, the expected branch target must still be as if it is going to branch, therefore 80 + 16 = 96)
         check_branch_task(32'h00507863, 32'd80, 1'b0, 32'd96, 5'd0); // bgeu x0, x5, 16
 
+        uut.rf.x[3] = -32'd2;
+        uut.rf.x[5] = 32'd2;
+
         // test 42
-        check_task(32'h0051A0B3, 0, 1); // slt x1, x3, x5
+        check_task(32'h0051A0B3, 1, 1); // slt x1, x3, x5
 
         // test 43
-        check_task(32'h0032A0B3, 1, 1); // slt x1, x5, x3
+        check_task(32'h0032A0B3, 0, 1); // slt x1, x5, x3
+
+        // test 44
+        check_task(32'h0051B0B3, 0, 1); // sltu x1, x3, x5
+
+        uut.rf.x[5] = 32'd4294967295; // since -2 unsigned becomes 4294967294, lets set x5 higher by 1
+
+        // test 45
+        check_task(32'h0051B0B3, 1, 1); // sltu x1, x3, x5
+
+        // test 46
+        check_task(32'h0032B0B3, 0, 1); // sltu x1, x5, x3
+
+        // test 47
+        check_task(32'h0051A093, 1, 1); // slti x1, x3, 5
+
+        // test 48
+        check_task(32'hFFC1A093, 0, 1); // slti x1, x3, -4
+
+        uut.rf.x[3] = 32'd6;
+
+        // test 49
+        check_task(32'h0051A093, 0, 1); // slti x1, x3, 5
+
+        // test 50
+        check_task(32'hFFC1A093, 0, 1); // slti x1, x3, -4
+
+        // test 51
+        check_task(32'h00A1A093, 1, 1); // slti x1, x3, 10
+
+        // test 52
+        check_task(32'h0051B093, 0, 1); // sltiu x1, x3, 5
+
+        // test 53
+        check_task(32'hFFB1B093, 1, 1); // sltiu x1, x3, -5; unsigned(-5) = 4,294,967,291
+
+        // test 54
+        check_task(32'h00A1B093, 1, 1); // sltiu x1, x3, 10
+
+        uut.rf.x[3] = -32'd5; // unsigned(-5) = 4,294,967,291
+
+        // test 55
+        check_task(32'h0051B093, 0, 1); // sltiu x1, x3, 5
+
+        // test 56
+        check_task(32'hFFB1B093, 0, 1); // sltiu x1, x3, -5; unsigned(-5) = 4,294,967,291
+
+        // test 57
+        check_task(32'hFFF1B093, 1, 1); // sltiu x1, x3, 4294967295
 
         tb_final_display("single_cycle_datapath");
 

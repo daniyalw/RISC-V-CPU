@@ -45,7 +45,10 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, input 
                     jal_enable ? (pc + 4) :
                     lui_enable ? immediate :
                     auipc_enable ? (immediate + pc) :
-                    ((slt_enable[0] == 1) && (slt_enable[1] == 0) && (slt_enable[2] == 0)) ? ($signed(rs1_data) < $signed(rs2_data)) :
+                    ((slt_enable[0] == 1) && (slt_enable[1] == 0) && (slt_enable[2] == 0)) ? ($signed(rs1_data) < $signed(rs2_data)) : // SLT
+                    ((slt_enable[0] == 1) && (slt_enable[1] == 0) && (slt_enable[2] == 1)) ? ($unsigned(rs1_data) < $unsigned(rs2_data)) : // SLTU
+                    ((slt_enable[0] == 1) && (slt_enable[1] == 1) && (slt_enable[2] == 0)) ? ($signed(rs1_data) < $signed(immediate)) : // SLTI
+                    ((slt_enable[0] == 1) && (slt_enable[1] == 1) && (slt_enable[2] == 1)) ? ($unsigned(rs1_data) < $unsigned(immediate)) : // SLTIU
                     alu_result; // if mem_to_reg == 1, then the output is the data memory at that address (the ALU result is the address), if mem_to_reg == 0, then the output is the ALU operation result
 
     // use rs2_data to write value into data memory

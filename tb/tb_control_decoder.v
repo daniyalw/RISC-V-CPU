@@ -126,7 +126,7 @@ module tb_control_decoder;
 
             if ((slt_enable !== expected_slt_enable) || (invalid_instruction !== 1'b0)) begin
                 display_info();
-                $display("slt_enable = %b (expected = %b)", slt_enable, expected_slt_enable);
+                $display("slt_enable = %b (expected = %b), invalid_instruction = %b", slt_enable, expected_slt_enable, invalid_instruction);
             end
         end
     endtask
@@ -225,6 +225,18 @@ module tb_control_decoder;
         // test 22 - slt
         opcode = 7'b0110011; funct3 = 3'b010; funct7 = 7'b0000000;
         check_slt(3'b001);
+
+        // test 23 - sltu
+        opcode = 7'b0110011; funct3 = 3'b011; funct7 = 7'b0000000;
+        check_slt(3'b101);
+
+        // test 24 - slti
+        opcode = 7'b0010011; funct3 = 3'b010; funct7 = 7'b0000000;
+        check_slt(3'b011);
+
+        // test 25 - sltiu
+        opcode = 7'b0010011; funct3 = 3'b011; funct7 = 7'b0000000;
+        check_slt(3'b111);
 
         // invalid cases
         // test 1 - unsuported I-type

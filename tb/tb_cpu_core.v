@@ -112,44 +112,43 @@ module tb_cpu_core;
 
         // test 3
         @(posedge clk); #1;
-        // the target is function wrong1 at address 0x38, so the branch_target = 0x38, and 0x38 is NOT the offset; it is the PC+offset, so we do not add 32'd8 + 32'h38 to get whatever, the branch_target = 0x38
-        check_task_branch(32'd8, 1'b0, 1'b0, 5'b0, 32'b0, 32'h38);
+        check_task_gen(32'd8, -32'd1);
 
         // test 4
         @(posedge clk); #1;
-        check_task_gen(32'd12, 32'd11);
+        check_task_gen(32'd12, 32'd1);
 
         // test 5
         @(posedge clk); #1;
-        check_task_branch(32'd16, 1'b1, 1'b0, 5'b0, 32'h0, 32'h18); // branch_target doesn't change based on whether or not branch_taken =1, so branch_target is always the branch target that would have been if branch_target=1, even if branch_target is 0
+        check_task_gen(32'd16, 32'd1);
 
         // test 6
         @(posedge clk); #1;
-        check_task_gen(32'h18, 32'd22);
+        check_task_gen(32'd20, 32'd0);
 
         // test 7
         @(posedge clk); #1;
-        check_task_gen(32'h1c, -32'd1);
+        check_task_gen(32'd24, 32'd0);
 
         // test 8
         @(posedge clk); #1;
-        check_task_gen(32'h20, 32'd1);
+        check_task_gen(32'd28, 32'd1);
 
         // test 9
         @(posedge clk); #1;
-        check_task_branch(32'h24, 1'b0, 1'b0, 5'b0, 32'b0, 32'h38);
+        check_task_gen(32'd32, 32'd1);
 
         // test 10
         @(posedge clk); #1;
-        check_task_gen(32'h28, 32'd33);
+        check_task_gen(32'd36, 32'd0);
 
         // test 11
         @(posedge clk); #1;
-        check_task_branch(32'h2c, 1'b1, 1'b0, 5'b0, 32'b0, 32'h34);
+        check_task_gen(32'd40, 32'd0);
 
         // test 12
         @(posedge clk); #1;
-        check_task_gen(32'h34, 32'd44);
+        check_task_gen(32'd44, 32'd1);
 
         tb_final_display("cpu_core");
 

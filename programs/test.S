@@ -2,34 +2,25 @@
 .globl _start
 
 _start:
-    # BGE signed tests
-
-    addi x1, x0, -5        # x1 = -5
+    addi x1, x0, -5        # x1 = -5 = 0xfffffffb
     addi x2, x0, 3         # x2 = 3
+    addi x3, x0, -1        # x3 = -1 = 0xffffffff
+    addi x4, x0, 1         # x4 = 1
 
-    bge  x1, x2, wrong1    # -5 >= 3 is false, should NOT branch
-    addi x3, x0, 11        # should execute
+    # SLT
+    slt  x5, x1, x2        # -5 < 3 signed -> x5 = 1
+    slt  x6, x2, x1        # 3 < -5 signed -> x6 = 0
 
-    bge  x2, x1, bge_ok    # 3 >= -5 is true, should branch
-    addi x3, x0, 99        # should be skipped
+    # SLTU
+    sltu x7, x3, x4        # 0xffffffff < 1 unsigned -> x7 = 0
+    sltu x8, x4, x3        # 1 < 0xffffffff unsigned -> x8 = 1
 
-bge_ok:
-    addi x4, x0, 22        # should execute
+    # SLTI
+    slti x9,  x1, 0        # -5 < 0 signed -> x9 = 1
+    slti x10, x2, 0        # 3 < 0 signed -> x10 = 0
 
-    # BGEU unsigned tests
+    # SLTIU
+    sltiu x11, x3, 1       # 0xffffffff < 1 unsigned -> x11 = 0
+    sltiu x12, x4, -1      # 1 < 0xffffffff unsigned -> x12 = 1
 
-    addi x5, x0, -1        # x5 = 0xffffffff unsigned = huge
-    addi x6, x0, 1         # x6 = 1
-
-    bgeu x6, x5, wrong2    # 1 >= 0xffffffff unsigned is false, should NOT branch
-    addi x7, x0, 33        # should execute
-
-    bgeu x5, x6, bgeu_ok   # 0xffffffff >= 1 unsigned is true, should branch
-    addi x7, x0, 99        # should be skipped
-
-bgeu_ok:
-    addi x8, x0, 44        # should execute
-
-wrong1:
-wrong2:
     .word 0x00000000

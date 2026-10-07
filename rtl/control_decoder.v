@@ -50,6 +50,9 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             end else if ((funct3 == 3'b010) && (funct7 == 7'b0000000)) begin
                 // SLT
                 slt_enable = 3'b001; // bit 0 (1) denotes the enable, bit 1 (0) denotes whether or not it's SLT or SLTI [SLT = 0, SLTI = 1], bit 2 (0) denotes whether or not it's unsigned (signed = 0, unsigned = 1)
+            end else if ((funct3 == 3'b011) && (funct7 == 7'b0000000)) begin
+                // SLTU
+                slt_enable = 3'b101;
             end else begin
                 // invalid
                 invalid_instruction = 1'b1;
@@ -83,6 +86,16 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
                 alu_src = 1'b1;
                 reg_write = 1'b1;
                 invalid_instruction = 1'b0;
+            end else if (funct3 == 3'b010) begin
+                // SLTI
+                slt_enable = 3'b011;
+                invalid_instruction = 1'b0;
+                reg_write = 1'b1;
+            end else if (funct3 == 3'b011) begin
+                // SLTIU
+                slt_enable = 3'b111;
+                invalid_instruction = 1'b0;
+                reg_write = 1'b1;
             end else begin
                 // all invalid funct3 values end up here, so default values (invalid) prevail
             end
