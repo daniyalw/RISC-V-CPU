@@ -2,7 +2,10 @@ module tb_pc_plus_4;
     reg [31:0] pc;
     wire [31:0] next_pc;
 
-    pc_plus_4 uut (.pc(pc), .next_pc(next_pc));
+    reg branch_taken = 1'b0;
+    reg [31:0] branch_target;
+
+    pc_plus_4 uut (.pc(pc), .branch_taken(branch_taken), .branch_target(branch_target), .next_pc(next_pc));
 
     integer error_count = 0, num_tasks = 0;
 
@@ -45,6 +48,13 @@ module tb_pc_plus_4;
         pc = 32'hFFFFFFFC;
         #10
         testcase(32'h00000000);
+
+        // test case 4
+        pc = 32'h4;
+        branch_target = 32'h32;
+        branch_taken = 1'b1;
+        #10
+        testcase(32'h32);
 
         tb_final_display("pc_plus_4");
 

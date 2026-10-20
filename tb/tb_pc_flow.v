@@ -4,10 +4,13 @@ module tb_pc_flow;
     wire [31:0] pc_next;
     wire [31:0] pc_current;
 
+    reg branch_taken = 1'b0;
+    reg [31:0] branch_target;
+
     always #5 clk = ~clk;
 
     program_counter pc (.clk(clk), .reset(reset), .enable(enable), .next_pc(pc_next), .pc(pc_current));
-    pc_plus_4 pc4 (.pc(pc_current), .next_pc(pc_next));
+    pc_plus_4 pc4 (.pc(pc_current), .branch_target(branch_target), .branch_taken(branch_taken), .next_pc(pc_next));
 
     `include "tb/tb_final_display.vh"
 
@@ -18,7 +21,7 @@ module tb_pc_flow;
         begin
             num_tasks = num_tasks + 1;
 
-            $display("pc_current = %h | pc_next = %h", pc_current, pc_next);
+            $display("pc_current = %h | pc_next = %h | branch_taken = %b | branch_target = %h", pc_current, pc_next, branch_taken, branch_target);
 
             if ((pc_next !== expected_next) || (pc_current !== expected_current)) begin
                 $display("Error: pc_current = %h (should be %h), pc_next = %h (should be %h)", pc_current, expected_current, pc_next, expected_next);
@@ -39,16 +42,24 @@ module tb_pc_flow;
         reset = 0;
         #1;
 
-        check_task(32'h00000000, 32'h00000004);
+        check_task(32'd0, 32'd4);
 
         @(posedge clk); #1;
-        check_task(32'h00000004, 32'h00000008);
+        check_task(32'd4, 32'd8);
 
         @(posedge clk); #1;
         check_task(32'h00000008, 32'h0000000c);
 
         @(posedge clk); #1;
         check_task(32'h0000000c, 32'h00000010);
+
+        branch_taken = 1'b1;
+        branch_target = 32'h32;
+        @(posedge clk); #1;
+        branch_taken = 1'b0;
+        #1;
+        check_task(32'h32, 32'h36);
+
 
         tb_final_display("tb_pc_flow");
 

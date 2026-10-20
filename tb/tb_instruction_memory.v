@@ -31,27 +31,51 @@ module tb_instruction_memory;
 
         // test 1
         address = 32'd0;
-        check_task({12'd12, 5'd0, 3'b000, 5'd1, 7'b0010011});
+        check_task(32'hffb00093);
 
         // test 2
         address = 32'd4;
-        check_task({12'd10, 5'd1, 3'b010, 5'd2, 7'b0010011});
+        check_task(32'h00300113);
 
         // test 3
         address = 32'd8;
-        check_task({12'd3, 5'd2, 3'b011, 5'd3, 7'b0010011});
+        check_task(32'hfff00193);
 
         // test 4
         address = 32'd12;
-        check_task({12'd15, 5'd3, 3'b100, 5'd4, 7'b0010011});
+        check_task(32'h00100213);
 
         // test 5
         address = 32'd16;
-        check_task({7'b0000000, 5'd1, 5'd4, 3'b000, 5'd5, 7'b0110011});
+        check_task(32'h0020a2b3);
 
         // test 6
         address = 32'd20;
-        check_task({7'b0100000, 5'd2, 5'd5, 3'b000, 5'd6, 7'b0110011});
+        check_task(32'h00112333);
+
+        // test 7
+        address = 32'd24;
+        check_task(32'h0041b3b3);
+
+        // test 8
+        address = 32'd28;
+        check_task(32'h00323433);
+
+        // test 9
+        address = 32'd32;
+        check_task(32'h0000a493);
+
+        // test 10
+        address = 32'd36;
+        check_task(32'h00012513);
+
+        // test 11
+        address = 32'd40;
+        check_task(32'h0011b593);
+
+        // test 12
+        address = 32'd44;
+        check_task(32'hfff23613);
 
         tb_final_display("instruction_memory");
 

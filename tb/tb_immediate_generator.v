@@ -178,6 +178,9 @@ module tb_immediate_generator;
         // neither B-type nor I-type
         check_gen_task(32'h00000033, 32'h00000000);
 
+        // test for system/privileged opcode
+        check_gen_task(32'h00000073, 32'h0);
+
         tb_final_display("immediate_generator");
 
         $finish;

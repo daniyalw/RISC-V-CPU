@@ -209,6 +209,35 @@ cpu_core: $(BUILD_DIR) $(WAVE_DIR)
 		$(TB_DIR)/tb_cpu_core.v
 	$(VVP) $(BUILD_DIR)/cpu_core.out
 
+test: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit \
+    add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit \
+    alu_32bit mux2to1_32bit mux4to1_32bit register_32bit \
+    instruction_field_decoder immediate_generator control_decoder \
+    data_memory single_cycle_datapath instruction_memory cpu_core
+	$(VVP) $(BUILD_DIR)/mux2to1.out
+	$(VVP) $(BUILD_DIR)/mux4to1.out
+	$(VVP) $(BUILD_DIR)/half_adder.out
+	$(VVP) $(BUILD_DIR)/full_adder.out
+	$(VVP) $(BUILD_DIR)/ripple_carry_4bit.out
+	$(VVP) $(BUILD_DIR)/add_sub_4bit.out
+	$(VVP) $(BUILD_DIR)/mux4to1_4bit.out
+	$(VVP) $(BUILD_DIR)/mux2to1_4bit.out
+	$(VVP) $(BUILD_DIR)/alu_4bit.out
+	$(VVP) $(BUILD_DIR)/alu_32bit.out
+	$(VVP) $(BUILD_DIR)/mux2to1_32bit.out
+	$(VVP) $(BUILD_DIR)/mux4to1_32bit.out
+	$(VVP) $(BUILD_DIR)/register_32bit.out
+	$(VVP) $(BUILD_DIR)/pc_plus_4.out
+	$(VVP) $(BUILD_DIR)/tb_pc_flow.out
+	$(VVP) $(BUILD_DIR)/register_file.out
+	$(VVP) $(BUILD_DIR)/instruction_field_decoder.out
+	$(VVP) $(BUILD_DIR)/immediate_generator.out
+	$(VVP) $(BUILD_DIR)/control_decoder.out
+	$(VVP) $(BUILD_DIR)/data_memory.out
+	$(VVP) $(BUILD_DIR)/single_cycle_datapath.out
+	$(VVP) $(BUILD_DIR)/instruction_memory.out
+	$(VVP) $(BUILD_DIR)/cpu_core.out
+
 ##############################################
 # open waveforms
 ##############################################
