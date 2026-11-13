@@ -14,8 +14,7 @@ PROGRAM_DIR = programs
 TOOLS_DIR = tools
 
 # default target
-all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder single_cycle_datapath instruction_memory cpu_core programs data_memory button_gpio
-
+all: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit mux2to1_32bit mux4to1_32bit alu_32bit register_32bit pc_plus_4 tb_pc_flow register_file instruction_field_decoder immediate_generator control_decoder single_cycle_datapath instruction_memory cpu_core programs data_memory soc_interconnect button_gpio
 
 ##############################################
 # external assembly programs runnable in CPU
@@ -240,7 +239,7 @@ test: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit \
     add_sub_4bit mux4to1_4bit mux2to1_4bit alu_4bit \
     alu_32bit mux2to1_32bit mux4to1_32bit register_32bit \
     instruction_field_decoder immediate_generator control_decoder \
-    data_memory single_cycle_datapath instruction_memory cpu_core
+    data_memory single_cycle_datapath instruction_memory cpu_core soc_interconnect button_gpio
 	$(VVP) $(BUILD_DIR)/mux2to1.out
 	$(VVP) $(BUILD_DIR)/mux4to1.out
 	$(VVP) $(BUILD_DIR)/half_adder.out
@@ -264,6 +263,8 @@ test: mux2to1 mux4to1 half_adder full_adder ripple_carry_4bit \
 	$(VVP) $(BUILD_DIR)/single_cycle_datapath.out
 	$(VVP) $(BUILD_DIR)/instruction_memory.out
 	$(VVP) $(BUILD_DIR)/cpu_core.out
+	$(VVP) $(BUILD_DIR)/soc_interconnect.out
+	$(VVP) $(BUILD_DIR)/button_gpio.out
 
 ##############################################
 # open waveforms
