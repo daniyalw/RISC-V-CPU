@@ -7,6 +7,7 @@
     <FileList>
         <File path="src/tang_nano_9k_top.v" type="file.verilog" enable="1"/>
         <File path="../../../rtl/alu_32bit.v" type="file.verilog" enable="1"/>
+        <File path="../../../rtl/button_gpio.v" type="file.verilog" enable="1"/>
         <File path="../../../rtl/control_decoder.v" type="file.verilog" enable="1"/>
         <File path="../../../rtl/cpu_core.v" type="file.verilog" enable="1"/>
         <File path="../../../rtl/data_memory.v" type="file.verilog" enable="1"/>
@@ -25,6 +26,6 @@
         <File path="../../../rtl/soc_interconnect.v" type="file.verilog" enable="1"/>
         <File path="src/tang_nano_9k.cst" type="file.cst" enable="1"/>
         <File path="src/tang_nano_9k.sdc" type="file.sdc" enable="1"/>
-        <File path="src/basic_led.hex" type="file.other" enable="1"/>
+        <File path="../../../programs/basic_led.hex" type="file.other" enable="1"/>
     </FileList>
 </Project>

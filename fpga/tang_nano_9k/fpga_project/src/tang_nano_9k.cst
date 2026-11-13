@@ -4,6 +4,9 @@ IO_PORT "clk" PULL_MODE=UP;
 IO_LOC "reset_signal" 3;
 IO_PORT "reset_signal" PULL_MODE=UP;
 
+IO_LOC "button" 4;
+IO_PORT "button" PULL_MODE=UP;
+
 IO_LOC "led_o[0]" 10;
 IO_PORT "led_o[0]" PULL_MODE=NONE DRIVE=8;
 
