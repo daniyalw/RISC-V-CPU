@@ -29,6 +29,8 @@ module tb_instruction_memory;
 
         $display("Running instruction memory tests...");
 
+        // TODO: fix this, expects a different program
+
         // test 1
         address = 32'd0;
         check_task(32'hffb00093);

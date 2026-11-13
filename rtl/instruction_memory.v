@@ -3,7 +3,7 @@ module instruction_memory (input [31:0] address, output reg [31:0] instruction);
     integer i;
 
     initial begin
-        $readmemh("programs/test.hex", memory); // read file into memory and leave the rest zeroed
+        $readmemh("basic_led.hex", memory); // read file into memory and leave the rest zeroed
     end
 
     always @(*) begin

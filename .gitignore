@@ -1,0 +1,17 @@
+.git/
+
+# simulation and compiled programs
+/build/
+/waves/
+
+# Gowin generated output
+/fpga/**/impl/
+
+# Gowin user-specific settings
+*.gprj.user
+
+# temporary files
+*.log
+*.tmp
+*.bak
+*.swp

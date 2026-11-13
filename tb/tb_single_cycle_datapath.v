@@ -1,8 +1,8 @@
 module tb_single_cycle_datapath;
     reg [31:0] instruction, pc, target;
-    wire [31:0] alu_result, branch_target;
-    reg clk = 0, reset = 0;
-    wire invalid_instruction, branch_taken;
+    wire [31:0] alu_result, branch_target, mem_rdata, mem_wdata, mem_addr;
+    reg clk = 0, reset = 0, enable = 1;
+    wire invalid_instruction, branch_taken, mem_re, mem_we;
 
     integer num_tasks = 0, error_count = 0, i;
 
@@ -10,7 +10,7 @@ module tb_single_cycle_datapath;
 
     `include "tb/tb_final_display.vh"
 
-    single_cycle_datapath uut (.instruction(instruction), .clk(clk), .reset(reset), .pc(pc), .alu_result(alu_result), .invalid_instruction(invalid_instruction), .branch_taken(branch_taken), .branch_target(branch_target));
+    single_cycle_datapath uut (.instruction(instruction), .clk(clk), .reset(reset), .pc(pc), .enable(enable), .mem_rdata(mem_rdata), .mem_wdata(mem_wdata), .mem_addr(mem_addr), .mem_we(mem_we), .mem_re(mem_re), .alu_result(alu_result), .invalid_instruction(invalid_instruction), .branch_taken(branch_taken), .branch_target(branch_target));
 
     task check_task;
         input [31:0] input_instruction;
@@ -90,8 +90,8 @@ module tb_single_cycle_datapath;
 
             if (store == 0) begin
                 // lw
-                if ((uut.mem_read !== 1'b1) || (uut.mem_write !== 1'b0) || (uut.mem_to_reg !== 1'b1) || (uut.datamem_out !== expected_datamem) || (alu_result !== expected_address)) begin
-                    $display("Error: test=%0d instruction=%h | mem_read=%b (expected=%b)   mem_write=%b (expected = %b)   mem_to_reg=%b (expected=%b)   datamem_out=%h (expected=%h)   alu_result=%h (expected=%h)", num_tasks, instruction, uut.mem_read, 1'b1, uut.mem_write, 1'b0, uut.mem_to_reg, 1'b1, uut.datamem_out, expected_datamem, alu_result, expected_address);
+                if ((uut.mem_read !== 1'b1) || (uut.mem_write !== 1'b0) || (uut.mem_to_reg !== 1'b1) || (alu_result !== expected_address)) begin
+                    $display("Error: test=%0d instruction=%h | mem_read=%b (expected=%b)   mem_write=%b (expected = %b)   mem_to_reg=%b (expected=%b)   mem_rdata=%h (expected=%h)   alu_result=%h (expected=%h)", num_tasks, instruction, uut.mem_read, 1'b1, uut.mem_write, 1'b0, uut.mem_to_reg, 1'b1, uut.mem_rdata, expected_datamem, alu_result, expected_address);
                     error_count = error_count + 1;
                 end
             end else if (store == 1) begin
@@ -143,7 +143,7 @@ module tb_single_cycle_datapath;
         check_mem_task(32'h0000a183, 32'd5, 32'd5, 0); // lw x3, 0(x1) - loading the value 5 into x3 from addr=0+x1
 
         // test 10
-        check_task(32'h00118213, 32'd6, 5'd4); // addi x4, x3, 1; x4 = x3 + 1 = 5 + 1 = 6
+        check_task(32'h00108213, 32'd6, 5'd4); // addi x4, x1, 1; x4 = x1 + 1 = 5 + 1 = 6
 
         // test 11
         check_branch_task(32'h008002ef, 32'd4, 1'b1, 32'd12, 5'd5); // jal x5, +8

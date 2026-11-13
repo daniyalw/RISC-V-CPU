@@ -9,10 +9,7 @@ module data_memory (input clk, reset, mem_write, mem_read, input [31:0] address,
             for (i = 0; i < 32; i = i + 1) begin
                 datamem[i] = 32'd0;
             end
-        end
-        
-        // sw
-        if (mem_write == 1) begin
+        end else if (mem_write == 1'b1) begin
             datamem[address[31:2]] <= write_data;
         end
     end
