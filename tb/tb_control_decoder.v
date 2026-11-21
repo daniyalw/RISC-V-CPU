@@ -2,7 +2,7 @@ module tb_control_decoder;
     reg [6:0] opcode;
     reg [2:0] funct3;
     reg [6:0] funct7;
-    wire [2:0] alu_op, slt_enable;
+    wire [3:0] alu_op;
     wire alu_src, reg_write, invalid_instruction, branch, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable, auipc_enable;
 
     integer num_tasks = 0, error_count = 0;
@@ -20,7 +20,7 @@ module tb_control_decoder;
 
     // for ALU tests
     task check_gen_task;
-        input [2:0] expected_op;
+        input [3:0] expected_op;
         input expected_src, expected_regwrite;
 
         begin
@@ -94,7 +94,7 @@ module tb_control_decoder;
 
             #1;
 
-            if ((alu_op !== 3'b111) || (branch !== 1'b0) || ((branch == 1'b1) && ((funct3 !== 3'b010) || (funct3 !== 3'b011))) || (alu_src !== 1'b0) || (reg_write !== 1'b0) || (mem_read !== 1'b0) || (mem_write !== 1'b0) || (mem_to_reg !== 1'b0) || (invalid_instruction !== 1'b1)) begin
+            if ((alu_op !== 4'b1111) || (branch !== 1'b0) || ((branch == 1'b1) && ((funct3 !== 3'b010) || (funct3 !== 3'b011))) || (alu_src !== 1'b0) || (reg_write !== 1'b0) || (mem_read !== 1'b0) || (mem_write !== 1'b0) || (mem_to_reg !== 1'b0) || (invalid_instruction !== 1'b1)) begin
                 display_info();
                 $display("alu_op = %b (expected = 111), branch = %b (expected = 0), funct3 = %b (expected = 00), alu_src = %b (expected = 0), reg_write = %b (expected = 0), mem_read = %b (expected = 0), mem_write = %b (expected = 0), mem_to_reg = %b (expected = 0), invalid_instruction = %b (expected = 1)\n\n", alu_op, branch, funct3, alu_src, reg_write, mem_read, mem_write, mem_to_reg, invalid_instruction);
             end
@@ -223,10 +223,22 @@ module tb_control_decoder;
         opcode = 7'b0010011; funct3 = 3'b011; funct7 = 7'b0000000;
         check_gen_task(4'b0110, 1'b1, 1'b1);
 
-        // invalid cases
-        // test 1 - unsuported I-type
+        // test 26 - slli
         opcode = 7'b0010011; funct3 = 3'b001; funct7 = 7'b0000000;
-        check_invalid();
+        check_gen_task(4'b0111, 1'b1, 1'b1);
+
+        // test 27 - srl
+        opcode = 7'b0110011; funct3 = 3'b101; funct7 = 7'b0000000;
+        check_gen_task(4'b1000, 1'b0, 1'b1);
+
+        // test 28 - srli
+        opcode = 7'b0010011; funct3 = 3'b101; funct7 = 7'b0000000;
+        check_gen_task(4'b1000, 1'b1, 1'b1);
+
+        // invalid cases
+        // test 1 - unsupported I-type (CAN NO LONGER TEST THIS BECAUSE ALL 8 POSSIBLE FUNCT3 I-TYPE VALUES ARE TAKEN)
+        //opcode = 7'b0010011; funct3 = 3'b101; funct7 = 7'b0000000;
+        //check_invalid();
 
         // test 2 - unsupported opcode
         opcode = 7'b1111111; funct3 = 3'b111; funct7 = 7'b0000000;

@@ -25,7 +25,7 @@ module tb_alu_32bit;
 
     task error_task;
         begin
-            $display("Error: test %0d: a = %h, b = %h | op = %b | result = %h (expected = %h), zero = %b (expected = %b), cout = %b (expected = %b)", num_tasks + 1, a, b, op, result, expected_result, zero, expected_zero, cout, expected_cout);
+            $display("Error: test %0d: a = %h, b = %h | op = %b | result = %h (expected = %h), zero = %b (expected = %b), cout = %b (expected = %b)", num_tasks, a, b, op, result, expected_result, zero, expected_zero, cout, expected_cout);
             error_count = error_count + 1;
         end
     endtask
@@ -34,8 +34,8 @@ module tb_alu_32bit;
         begin
             num_tasks = num_tasks + 1;
 
-            // `i < 7` because we have 7 operations: ADD(I), SUB, AND(I), OR(I), XOR(I), SLT(I), SLT(I)U
-            for (i = 0; i < 7; i = i + 1) begin
+            // `i < 9` because we have 9 operations: ADD(I), SUB, AND(I), OR(I), XOR(I), SLT(I), SLT(I)U
+            for (i = 0; i < 9; i = i + 1) begin
                 op = i;
 
                 #10;
@@ -60,6 +60,12 @@ module tb_alu_32bit;
                     expected_cout = 0;
                 end else if (op == 4'b0110) begin // SLTU/SLTIU
                     expected_result = $unsigned(a) < $unsigned(b);
+                    expected_cout = 0;
+                end else if (op == 4'b0111) begin // SLL/SLLI
+                    expected_result = a << b[4:0];
+                    expected_cout = 0;
+                end else if (op == 4'b1000) begin // SRL/SRLI
+                    expected_result = a >> b[4:0];
                     expected_cout = 0;
                 end else begin
                     expected_result = {32{1'b0}};
@@ -201,7 +207,7 @@ module tb_alu_32bit;
         testcase();
 
         tb_final_display("alu_32bit");
-        $display("NOTE: each test case has been tested on all 7 operations.");
+        $display("NOTE: each test case has been tested on all 9 operations.");
 
         $finish;
     end
