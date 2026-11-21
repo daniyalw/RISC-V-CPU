@@ -9,7 +9,7 @@ module tb_control_decoder;
 
     `include "tb/tb_final_display.vh"
 
-    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable), .slt_enable(slt_enable));
+    control_decoder uut (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .alu_src(alu_src), .branch(branch), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable));
 
     task display_info;
         begin
@@ -116,21 +116,6 @@ module tb_control_decoder;
         end
     endtask
 
-    task check_slt;
-        input [2:0] expected_slt_enable;
-
-        begin
-            num_tasks = num_tasks + 1;
-
-            #1;
-
-            if ((slt_enable !== expected_slt_enable) || (invalid_instruction !== 1'b0)) begin
-                display_info();
-                $display("slt_enable = %b (expected = %b), invalid_instruction = %b", slt_enable, expected_slt_enable, invalid_instruction);
-            end
-        end
-    endtask
-
     initial begin
         $dumpfile("waves/control_decoder.vcd");
         $dumpvars(0, tb_control_decoder);
@@ -140,39 +125,39 @@ module tb_control_decoder;
         // valid cases
         // test 1 - ADD
         opcode = 7'b0110011; funct3 = 3'b000; funct7 = 7'b0000000;
-        check_gen_task(3'b000, 1'b0, 1'b1);
+        check_gen_task(4'b0000, 1'b0, 1'b1);
 
         // test 2 - SUB
         opcode = 7'b0110011; funct3 = 3'b000; funct7 = 7'b0100000;
-        check_gen_task(3'b001, 1'b0, 1'b1);
+        check_gen_task(4'b0001, 1'b0, 1'b1);
 
         // test 3 - AND
         opcode = 7'b0110011; funct3 = 3'b111; funct7 = 7'b0000000;
-        check_gen_task(3'b010, 1'b0, 1'b1);
+        check_gen_task(4'b0010, 1'b0, 1'b1);
 
         // test 4 - OR
         opcode = 7'b0110011; funct3 = 3'b110; funct7 = 7'b0000000;
-        check_gen_task(3'b011, 1'b0, 1'b1);
+        check_gen_task(4'b0011, 1'b0, 1'b1);
 
         // test 5 - XOR
         opcode = 7'b0110011; funct3 = 3'b100; funct7 = 7'b0000000;
-        check_gen_task(3'b100, 1'b0, 1'b1);
+        check_gen_task(4'b0100, 1'b0, 1'b1);
 
         // test 6 - ADDI
         opcode = 7'b0010011; funct3 = 3'b000; funct7 = 7'b0000000;
-        check_gen_task(3'b000, 1'b1, 1'b1);
+        check_gen_task(4'b0000, 1'b1, 1'b1);
 
         // test 7 - ANDI
         opcode = 7'b0010011; funct3 = 3'b111; funct7 = 7'b0000000;
-        check_gen_task(3'b010, 1'b1, 1'b1);
+        check_gen_task(4'b0010, 1'b1, 1'b1);
 
         // test 8 - ORI
         opcode = 7'b0010011; funct3 = 3'b110; funct7 = 7'b0000000;
-        check_gen_task(3'b011, 1'b1, 1'b1);
+        check_gen_task(4'b0011, 1'b1, 1'b1);
 
         // test 9 - XORI
         opcode = 7'b0010011; funct3 = 3'b100; funct7 = 7'b0000000;
-        check_gen_task(3'b100, 1'b1, 1'b1);
+        check_gen_task(4'b0100, 1'b1, 1'b1);
 
         // test 10 - BEQ
         opcode = 7'b1100011; funct3 = 3'b000; funct7 = 7'b0000000;
@@ -224,19 +209,19 @@ module tb_control_decoder;
 
         // test 22 - slt
         opcode = 7'b0110011; funct3 = 3'b010; funct7 = 7'b0000000;
-        check_slt(3'b001);
+        check_gen_task(4'b0101, 1'b0, 1'b1);
 
         // test 23 - sltu
         opcode = 7'b0110011; funct3 = 3'b011; funct7 = 7'b0000000;
-        check_slt(3'b101);
+        check_gen_task(4'b0110, 1'b0, 1'b1);
 
         // test 24 - slti
         opcode = 7'b0010011; funct3 = 3'b010; funct7 = 7'b0000000;
-        check_slt(3'b011);
+        check_gen_task(4'b0101, 1'b1, 1'b1);
 
         // test 25 - sltiu
         opcode = 7'b0010011; funct3 = 3'b011; funct7 = 7'b0000000;
-        check_slt(3'b111);
+        check_gen_task(4'b0110, 1'b1, 1'b1);
 
         // invalid cases
         // test 1 - unsuported I-type

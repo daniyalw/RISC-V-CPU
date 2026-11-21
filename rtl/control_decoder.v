@@ -1,7 +1,7 @@
-module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [2:0] alu_op, output reg branch, output reg alu_src, reg_write, invalid_instruction, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable, auipc_enable, output reg [2:0] slt_enable); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
+module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] funct7, output reg [3:0] alu_op, output reg branch, output reg alu_src, reg_write, invalid_instruction, mem_read, mem_write, mem_to_reg, jal_enable, jalr_enable, lui_enable, auipc_enable); // must always use `output reg` for outputs that are modified inside an `always` block because the values are assigned procedurally
     always @ (*) begin
         // safe defaults
-        alu_op = 3'b111; // 3'b000 is the adder opcode, so using the unused 3'b111 as invalid opcode makes it easy for the ALU to notice that
+        alu_op = 4'b1111; // 4'b1111 is the UNUSED opcode
         alu_src = 1'b0;
         reg_write = 1'b0;
         invalid_instruction = 1'b1;
@@ -18,8 +18,6 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
         lui_enable = 1'b0;
         auipc_enable = 1'b0;
 
-        slt_enable = 3'b000;
-
         if (opcode == 7'b0110011) begin
             // R-type
             alu_src = 1'b0;
@@ -29,10 +27,10 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             if (funct3 == 3'b000) begin
                 if (funct7 == 7'b0000000) begin
                     // ADD
-                    alu_op = 3'b000;
+                    alu_op = 4'b0000;
                 end else if (funct7 == 7'b0100000) begin
                     // SUB
-                    alu_op = 3'b001;
+                    alu_op = 4'b0001;
                 end else begin
                     alu_src = 1'b0;
                     reg_write = 1'b0;
@@ -40,19 +38,22 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
                 end
             end else if ((funct3 == 3'b111) && (funct7 == 7'b0000000)) begin
                 // AND
-                alu_op = 3'b010;
+                alu_op = 4'b0010;
             end else if ((funct3 == 3'b110) && (funct7 == 7'b0000000)) begin
                 // OR
-                alu_op = 3'b011;
+                alu_op = 4'b0011;
             end else if ((funct3 == 3'b100) && (funct7 == 7'b0000000)) begin
                 // XOR
-                alu_op = 3'b100;
+                alu_op = 4'b0100;
             end else if ((funct3 == 3'b010) && (funct7 == 7'b0000000)) begin
                 // SLT
-                slt_enable = 3'b001; // bit 0 (1) denotes the enable, bit 1 (0) denotes whether or not it's SLT or SLTI [SLT = 0, SLTI = 1], bit 2 (0) denotes whether or not it's unsigned (signed = 0, unsigned = 1)
+                alu_op = 4'b0101;
             end else if ((funct3 == 3'b011) && (funct7 == 7'b0000000)) begin
                 // SLTU
-                slt_enable = 3'b101;
+                alu_op = 4'b0110;
+            end else if ((funct3 == 3'b001) && (funct7 == 7'b0000000)) begin
+                // SLL
+                alu_op = 4'b0111;
             end else begin
                 // invalid
                 invalid_instruction = 1'b1;
@@ -64,36 +65,38 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             // don't check funct7 here because the bits for funct7 are part of the immediate for the I-type
             if (funct3 == 3'b000) begin
                 // addi
-                alu_op = 3'b000;
+                alu_op = 4'b0000;
                 alu_src = 1'b1;
                 reg_write = 1'b1;
                 invalid_instruction = 1'b0;
             end else if (funct3 == 3'b100) begin
                 // xori
-                alu_op = 3'b100;
+                alu_op = 4'b0100;
                 alu_src = 1'b1;
                 reg_write = 1'b1;
                 invalid_instruction = 1'b0;
             end else if (funct3 == 3'b110) begin
                 // ori
-                alu_op = 3'b011;
+                alu_op = 4'b0011;
                 alu_src = 1'b1;
                 reg_write = 1'b1;
                 invalid_instruction = 1'b0;
             end else if (funct3 == 3'b111) begin
                 // andi
-                alu_op = 3'b010;
+                alu_op = 4'b0010;
                 alu_src = 1'b1;
                 reg_write = 1'b1;
                 invalid_instruction = 1'b0;
             end else if (funct3 == 3'b010) begin
                 // SLTI
-                slt_enable = 3'b011;
+                alu_op = 4'b0101;
+                alu_src = 1'b1;
                 invalid_instruction = 1'b0;
                 reg_write = 1'b1;
             end else if (funct3 == 3'b011) begin
                 // SLTIU
-                slt_enable = 3'b111;
+                alu_op = 4'b0110;
+                alu_src = 1'b1;
                 invalid_instruction = 1'b0;
                 reg_write = 1'b1;
             end else begin
@@ -110,7 +113,7 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             if (funct3 == 3'b010) begin
                 // lw
                 mem_read = 1'b1; mem_write = 1'b0;
-                alu_op = 3'b000; // add because the ALU will compute the data memory address to load word from (addr = rs1_data + immediate)
+                alu_op = 4'b0000; // add because the ALU will compute the data memory address to load word from (addr = rs1_data + immediate)
                 alu_src = 1'b1; // alu_src=1 so that the datapath selects the immediate instead of rs2_data for the second argument for ALU op
                 mem_to_reg = 1'b1; // so that the data memory output is written to rd_data
                 reg_write = 1'b1;
@@ -152,7 +155,7 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             if (funct3 == 3'b010) begin
                 // sw
                 mem_write = 1'b1; mem_read = 1'b0;
-                alu_op = 3'b000; // add, so ALU can add rs1_data + immediate
+                alu_op = 4'b0000; // add, so ALU can add rs1_data + immediate
                 alu_src = 1'b1; // so datapath picks immediate instead of rs2_data for second argument for ALU op
                 mem_to_reg = 1'b0; reg_write = 1'b0; // no data memory output
                 invalid_instruction = 1'b0;

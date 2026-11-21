@@ -2,7 +2,7 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, enable
     wire [6:0] opcode;
     wire [2:0] funct3;
     wire [6:0] funct7;
-    wire [2:0] alu_op;
+    wire [3:0] alu_op;
     wire alu_src, reg_write;
     wire [31:0] rd_data, rs1_data, rs2_data, immediate;
     wire alu_cout;
@@ -14,8 +14,6 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, enable
 
     wire jal_enable, jalr_enable;
     wire lui_enable, auipc_enable;
-
-    wire [2:0] slt_enable;
 
     // the branch is either BEQ/BNE or JAL, aka condition; only branch if condition is met
     assign branch_taken = jal_enable ||
@@ -34,7 +32,7 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, enable
 
     immediate_generator imm (.instruction(instruction), .immediate(immediate));
 
-    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable), .slt_enable(slt_enable));
+    control_decoder cd (.opcode(opcode), .funct3(funct3), .funct7(funct7), .alu_op(alu_op), .branch(branch), .alu_src(alu_src), .reg_write(reg_write), .invalid_instruction(invalid_instruction), .mem_read(mem_read), .mem_write(mem_write), .mem_to_reg(mem_to_reg), .jal_enable(jal_enable), .jalr_enable(jalr_enable), .lui_enable(lui_enable), .auipc_enable(auipc_enable));
 
     register_file rf (.clk(clk), .reset(reset), .write_enable(reg_write && enable && !invalid_instruction), .rs1_addr(rs1), .rs2_addr(rs2), .rd_addr(rd), .rd_data(rd_data), .rs1_data(rs1_data), .rs2_data(rs2_data));
 
@@ -44,10 +42,6 @@ module single_cycle_datapath (input [31:0] instruction, input clk, reset, enable
                     jal_enable ? (pc + 4) :
                     lui_enable ? immediate :
                     auipc_enable ? (immediate + pc) :
-                    ((slt_enable[0] == 1) && (slt_enable[1] == 0) && (slt_enable[2] == 0)) ? ($signed(rs1_data) < $signed(rs2_data)) : // SLT
-                    ((slt_enable[0] == 1) && (slt_enable[1] == 0) && (slt_enable[2] == 1)) ? ($unsigned(rs1_data) < $unsigned(rs2_data)) : // SLTU
-                    ((slt_enable[0] == 1) && (slt_enable[1] == 1) && (slt_enable[2] == 0)) ? ($signed(rs1_data) < $signed(immediate)) : // SLTI
-                    ((slt_enable[0] == 1) && (slt_enable[1] == 1) && (slt_enable[2] == 1)) ? ($unsigned(rs1_data) < $unsigned(immediate)) : // SLTIU
                     alu_result; // if mem_to_reg == 1, then the output is the data memory at that address (the ALU result is the address), if mem_to_reg == 0, then the output is the ALU operation result
 
     assign mem_addr = alu_result; // address is ALU result
