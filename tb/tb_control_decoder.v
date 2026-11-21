@@ -235,6 +235,14 @@ module tb_control_decoder;
         opcode = 7'b0010011; funct3 = 3'b101; funct7 = 7'b0000000;
         check_gen_task(4'b1000, 1'b1, 1'b1);
 
+        // test 29 - sra
+        opcode = 7'b0110011; funct3 = 3'b101; funct7 = 7'b0100000;
+        check_gen_task(4'b1001, 1'b0, 1'b1);
+
+        // test 30 - srai
+        opcode = 7'b0010011; funct3 = 3'b101; funct7 = 7'b0100000;
+        check_gen_task(4'b1001, 1'b1, 1'b1);
+
         // invalid cases
         // test 1 - unsupported I-type (CAN NO LONGER TEST THIS BECAUSE ALL 8 POSSIBLE FUNCT3 I-TYPE VALUES ARE TAKEN)
         //opcode = 7'b0010011; funct3 = 3'b101; funct7 = 7'b0000000;

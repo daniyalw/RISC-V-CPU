@@ -34,8 +34,8 @@ module tb_alu_32bit;
         begin
             num_tasks = num_tasks + 1;
 
-            // `i < 9` because we have 9 operations: ADD(I), SUB, AND(I), OR(I), XOR(I), SLT(I), SLT(I)U
-            for (i = 0; i < 9; i = i + 1) begin
+            // `i < 10` because we have 10 operations: ADD(I), SUB, AND(I), OR(I), XOR(I), SLT(I), SLT(I)U
+            for (i = 0; i < 10; i = i + 1) begin
                 op = i;
 
                 #10;
@@ -66,6 +66,9 @@ module tb_alu_32bit;
                     expected_cout = 0;
                 end else if (op == 4'b1000) begin // SRL/SRLI
                     expected_result = a >> b[4:0];
+                    expected_cout = 0;
+                end else if (op == 4'b1001) begin // SRA/SRAI
+                    expected_result = $signed(a) >>> b[4:0];
                     expected_cout = 0;
                 end else begin
                     expected_result = {32{1'b0}};
@@ -207,7 +210,7 @@ module tb_alu_32bit;
         testcase();
 
         tb_final_display("alu_32bit");
-        $display("NOTE: each test case has been tested on all 9 operations.");
+        $display("NOTE: each test case has been tested on all 10 operations.");
 
         $finish;
     end

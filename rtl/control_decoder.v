@@ -57,6 +57,9 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
             end else if ((funct3 == 3'b101) && (funct7 == 7'b0000000)) begin
                 // SRL
                 alu_op = 4'b1000;
+            end else if ((funct3 == 3'b101) && (funct7 == 7'b0100000)) begin
+                // SRA
+                alu_op = 4'b1001;
             end else begin
                 // invalid
                 invalid_instruction = 1'b1;
@@ -108,9 +111,15 @@ module control_decoder (input [6:0] opcode, input [2:0] funct3, input [6:0] func
                 alu_src = 1'b1;
                 invalid_instruction = 1'b0;
                 reg_write = 1'b1;
-            end else if (funct3 == 3'b101) begin
+            end else if ((funct3 == 3'b101) && (funct7 == 7'b0000000)) begin
                 // SRLI
                 alu_op = 4'b1000;
+                alu_src = 1'b1;
+                invalid_instruction = 1'b0;
+                reg_write = 1'b1;
+            end else if ((funct3 == 3'b101) && (funct7 == 7'b0100000)) begin
+                // SRAI
+                alu_op = 4'b1001;
                 alu_src = 1'b1;
                 invalid_instruction = 1'b0;
                 reg_write = 1'b1;
